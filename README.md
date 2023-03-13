@@ -1,23 +1,43 @@
-# Creating a dataset for semantic segmentation into different kind of impervious surfaces
-
+# Creating a dataset for impervious surfaces - semantic segmentation
+Combining images from different sources with lidar data into a single dataset with multi-channel images.
 ## Prerequsites are:
-- An ArcGIS project with the different areas marked up as polygons in a feature class.
-- Georeferenced Orthophotos.
-- TIN versions of Lidar "extra-bytes" of type deviation.
-- Conda-environment from ArcGIS pro installation.
+Software
+- Conda-environment from ArcGIS pro installation
+
+Data
+- Georeferenced Orthophoto (https://datafordeler.dk/dataoversigt/geodanmark-ortofoto/)
+- Georeferenced ortho-version of the downward facing camera("lod-billede") from oblique images(https://dataforsyningen.dk/data/1036)
+- Georeferenced Ortho-TIN-image of lidar "extra-bytes" of type deviation
+
+Labels
+- An ArcGIS project with the different areas marked up as polygons in a feature class
 
 
-## Instalation 
-In Arcgis-pro environment
-git clone https://github.com/rasmuspjohansson/befaestelse_dataset_creation/
+
+## Installation 
+git clone https://github.com/rasmuspjohansson/befaestelse_dataset_creation.git
+
+cd befaestelse_dataset_creation
+
+conda activate *your_arcgis_pro_environment*
+
+pip install .
 
 
+#Quickstart
 
-copy orto-versioner af alle lod billeder til local disk
-for each iamge:
-    * get label for area
-    * get forors-orto-foto for area
-    * get lidar for area
+## Folder structure
+Place you ortho versions of the "lod images" here
+*your_dataset*/large_images/name1.tif
+## Create large labels for each "lod image"
+python create_labels.py path/to/config.ini
+## Create one orthofoto image for each "lod image"
+python create_orthofoto_images.py
+## Create lidar-deviation image for each "lod image"
+python create_lidar_images.py
+
+## Split up all images and labels into smaller patches
+python split.py width 1000 height 1000
 	
 
 
