@@ -1,8 +1,14 @@
+# Creating a dataset for semantic segmentation into different kind of impervious surfaces
+
+Prerequsites are:
+	1. An arcgis project with the different areas marked up as polygons in a feature class.
+	2. Orthografik images georefferenced orthografi
+
 copy orto-versioner af alle lod billeder til local disk
 for each iamge:
-	get label for area
-	get forors-orto-foto for area
-	get lidar for area
+    get label for area
+    get forors-orto-foto for area
+    get lidar for area
 	
 
 
