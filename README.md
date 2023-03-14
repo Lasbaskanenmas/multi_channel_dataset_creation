@@ -24,13 +24,14 @@ conda activate *your_arcgis_pro_environment*
 pip install .
 
 
-#Quickstart
+## Quickstart
 
-update the config files in the config folder to point to your own data
+*update the config files in the config folder to point to your own data*
 
 
-python
-from befaestelse_dataset_creation import create_label_images,create_orthofoto_images,create_lidar_images,split,create_text_files
+>python
+
+>from befaestelse_dataset_creation import create_label_images,create_orthofoto_images,create_lidar_images,split,create_text_files
 ## Create large labels for each "lod image"
 create_label_images.main("configs/template_create_labels.ini")
 ## Create one orthofoto image for each "lod image"
