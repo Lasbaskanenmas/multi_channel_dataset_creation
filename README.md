@@ -30,7 +30,7 @@ pip install .
 Place you ortho versions of the "lod images" here
 *your_dataset*/large_images/name1.tif
 ## Create large labels for each "lod image"
-python create_labels.py path/to/config.ini
+python create_label_images.py path/to/config.ini
 ## Create one orthofoto image for each "lod image"
 python create_orthofoto_images.py
 ## Create lidar-deviation image for each "lod image"
