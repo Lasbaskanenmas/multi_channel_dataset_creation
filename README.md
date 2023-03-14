@@ -26,22 +26,23 @@ pip install .
 
 #Quickstart
 
-## Folder structure
-Place you ortho versions of the "lod images" here
-*your_dataset*/large_images/name1.tif
+update the config files in the config folder to point to your own data
+
+
+python
+from befaestelse_dataset_creation import create_label_images,create_orthofoto_images,create_lidar_images,split,create_text_files
 ## Create large labels for each "lod image"
-python create_label_images.py path/to/config.ini
+create_label_images.main("configs/template_create_labels.ini")
 ## Create one orthofoto image for each "lod image"
-python create_orthofoto_images.py
+create_orthofoto_images.main("configs/template_create_orthofoto_images.ini")
 ## Create lidar-deviation image for each "lod image"
-python create_lidar_images.py
-
+create_lidar_images.main("configs/template_create_lidar_images.ini")
 ## Split up all images and labels into smaller patches
-python split.py width 1000 height 1000
-
+split.main("configs/template_split.ini")
 ## Create text files that defines train and validations splits
-python create_text_files.py 
-	
+create_text_files.main("configs/template_split.ini")
+
+
 
 
 
