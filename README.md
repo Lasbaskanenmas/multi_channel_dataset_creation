@@ -43,7 +43,7 @@ split.main("configs/template_split.ini")
 ## Create text files that defines train and validations splits
 create_text_files.main("configs/template_split.ini")
 
-
+## copy the dataset to the format required by mask-DINO
 
 
 
