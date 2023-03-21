@@ -1,4 +1,4 @@
-# Creating a semantic segmentation dataset for impervious surfaces
+# Creating a dataset for semantic segmentation of impervious surfaces
 Combining images from different sources with lidar data into a single multi-channel image dataset
 ## Prerequsites are:
 Software
