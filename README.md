@@ -1,5 +1,5 @@
-# Creating a dataset for impervious surfaces - semantic segmentation
-Combining images from different sources with lidar data into a single dataset with multi-channel images.
+# Creating a dataset for semantic segmentation of impervious surfaces
+Combining images from different sources with lidar data into a single multi-channel image dataset
 ## Prerequsites are:
 Software
 - Conda-environment from ArcGIS pro installation
@@ -28,14 +28,13 @@ pip install .
 
 *update the config files in the config folder to point to your own data*
 
+python src\befaestelse_dataset_creation\create_dataset.py
 
-
->python
+## Importing the library and calling it from another program
 >from befaestelse_dataset_creation import create_dataset, create_label_images,create_orthofoto_images,create_lidar_images,split,create_text_files
 ##
 create_dataset.main()
 ##you can also do the different steps one by one like this
-
 
 ## Create large labels for each "lod image"
 create_label_images.main("configs/template_create_labels.ini")
@@ -48,30 +47,8 @@ split.main("configs/template_split.ini")
 ## Create text files that defines train and validations splits
 create_text_files.main("configs/template_split.ini")
 
-## copy the dataset to the format required by mask-DINO
 
 
-
-
-
-
-
-work from https://sdfidk.github.io/SDFIPython/package.html and reate a package for befaestelse dataset creation
-
-instead of devel .yml etc: instruct to install arcgis pro 
-copy conda environment (typical in this folder) to this folder
-activate environment
-read this to change from requiremnts.txt to .yml and install directly from github (multichanel albumetations) https://stackoverflow.com/questions/19042389/conda-installing-upgrading-directly-from-github
-install mamba install --file requirements.txt --channel fastchan --channel conda-forge --channel pytorch -y
-
-
-after activating the mamba environment
-python -m pip install -e .
-
-
-
-
-
-
-
+TODO:
+conversion to mask-DINO format
 I should also see if I can get mcdocs to work : see https://sdfidk.github.io/grf-programmel-overblik/
