@@ -30,13 +30,23 @@ class Split():
                            cutdatatype, srs, nodata)
 
 
-    def splitdst(self, in_path, out_path, tile_size_x, tile_size_y,cutdatatype,kun_ok_pic=False,ignore_id=0):
+    def splitdst(self, in_path, out_path, tile_size_x, tile_size_y,cutdatatype,kun_ok_pic=False,ignore_id=0,stop_on_error=True):
         filelist = self.getfiles(in_path)
         filelist.sort()
+        failed_files = []
         for (index,filename) in enumerate(filelist):
             print("working on image nr: "+str(index) + " out of : "+str(len(filelist)))
 
-            self.splitfile(in_path, out_path, filename, tile_size_x, tile_size_y,cutdatatype,kun_ok_pic=kun_ok_pic,nodata=ignore_id)
+            if stop_on_error:
+                self.splitfile(in_path, out_path, filename, tile_size_x, tile_size_y,cutdatatype,kun_ok_pic=kun_ok_pic,nodata=ignore_id)
+            else:
+                try:
+                    self.splitfile(in_path, out_path, filename, tile_size_x, tile_size_y, cutdatatype,
+                                   kun_ok_pic=kun_ok_pic, nodata=ignore_id)
+                except:
+                    failed_files.append(in_path)
+        return failed_files
+
 
 
     def splitfile(self, in_path, out_path, filename, tile_size_x, tile_size_y,cutdatatype, kun_ok_pic=False, centrer_opklip=False,srs="EPSG:25832", nodata=255):

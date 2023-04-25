@@ -34,11 +34,10 @@ def main(config):
     for data_folder in data_folders:
         splitted_folder = data_folder.with_name("splitted_"+data_folder.name)
         Path(splitted_folder).mkdir(parents=True, exist_ok=True)
-        print("splitting the data in "+str(data_folder)+"and string them in folder :"+str(splitted_folder))
+        print("splitting the data in "+str(data_folder)+"and storing them in folder :"+str(splitted_folder))
         splitf = split.Split()
-        splitf.splitdst(in_path=data_folder, out_path=splitted_folder, tile_size_x=int(tile_size_x), tile_size_y=int(tile_size_y),kun_ok_pic=False,ignore_id=ignore_id,cutdatatype="photo")
-
-
+        failed_files = splitf.splitdst(in_path=data_folder, out_path=splitted_folder, tile_size_x=int(tile_size_x), tile_size_y=int(tile_size_y),kun_ok_pic=False,ignore_id=ignore_id,cutdatatype="photo",stop_on_error=False)
+        print("failed to split the following files: "+str(failed_files))
 
 
 
