@@ -1,5 +1,6 @@
 import os
-
+import pathlib
+from osgeo import gdal
 large_file_name = "PROBS_O2021_84_40_1_0037_00084319"
 
 
@@ -19,89 +20,129 @@ def get_pathes_per_large_image(input_folder):
             images[image_name] = [patch_path]
     return images
 
+def merge_channels(images,output_file_path):
+    gdal_merge_path = r'"C:/Program Files/QGIS 3.22.4/apps/Python39/Scripts/gdal_merge.py"'
+    #input(output_file_path)
+    pathlib.Path(output_file_path).parent.mkdir(parents=True, exist_ok=True)
+    merge_argument = " ".join(images)
+
+    gdal_merge_process = "python "+gdal_merge_path +' -separate -o '+'"'+output_file_path +'"'+" "+merge_argument
+    print(gdal_merge_process)
+    print("merging :"+str(len(images))+ " nr of chanel-images to "+output_file_path)
+    # Call process.
+    os.system(gdal_merge_process)
+    print("done")
+
+
 def combine_patches(patches,large_image_name,output_file_path = r"C:\Users\B152325\Desktop\befæstelse_status_2023\\"):
     gdal_merge_path = r'"C:/Program Files/QGIS 3.22.4/apps/Python39/Scripts/gdal_merge.py"'
+    #input(output_file_path)
+    pathlib.Path(output_file_path).mkdir(parents=True, exist_ok=True)
+    #input("crated folder?")
 
-    output_file_path= output_file_path+   large_image_name + ".tif"
+    output_file_path= str(pathlib.Path(output_file_path)/ (  large_image_name + ".tif"))
+    #input(output_file_path)
     merge_argument = " ".join(patches)
 
-    gdal_merge_process = "python "+gdal_merge_path +' -o '+'"'+output_file_path +'"'+" "+' -init 0 ' +merge_argument
+    gdal_merge_process = "python "+gdal_merge_path +' -o '+'"'+output_file_path +'"'+" "+' -init 0 -ot float32 ' +merge_argument
     print(gdal_merge_process)
-    print("merging :"+str(len(patches))+ " nr of images to "+output_file_path)
+    print("merging :"+str(len(patches))+ " nr of patches to "+output_file_path)
     # Call process.
     os.system(gdal_merge_process)
     print("done")
 
     return output_file_path
 
-def add_probabilities(large_images,output_folder=r"C:\Users\B152325\Desktop\befæstelse_status_2023\\"):
-    gdal_calc_path = r'"C:/Program Files/QGIS 3.22.4/apps/Python39/Scripts/gdal_calc.py"'
+def add_probabilities(large_images,output_folder=r"C:\Users\B152325\Desktop\befæstelse_status_2023\\",output_name= "a_name"):
+    nr_of_bands =gdal.Open((large_images[0])).ReadAsArray().shape[0]
 
-    input_args =[]
+    #for band 1,2,3,4,,,n
+    #gdall_calc only processes a single band at a time, so we need to merge all images for each band and save them to separate images before merging them to a multichannel image
+    band_images=[]
+    for band in range(1,nr_of_bands+1):
+        band = str(band)
+        print("CREATING BAND: "+str(band) + " out of : "+str(nr_of_bands))
 
-    A = 65
-    Z = 90
-    a = 97
-    z= 122
-    numbers = list(range(A,Z+1))+list(range(a,z+1))
+        print(output_folder)
+        pathlib.Path(output_folder).mkdir(parents=True, exist_ok=True)
+        print("crated folder?")
+        gdal_calc_path = r'"C:/Program Files/QGIS 3.22.4/apps/Python39/Scripts/gdal_calc.py"'
 
-    #limitinh number of images to process to number of images or gdal_calcs limit
-    max_args= min(len(numbers),len(large_images))
+        input_args =[]
 
-    numbers = numbers[0:max_args]
-    input_files=large_images[0:max_args]
+        A = 65
+        Z = 90
+        a = 97
+        z= 122
+        numbers = list(range(A,Z+1))+list(range(a,z+1))
 
-    #numbers = [0:max_args]
+        #limitinh number of images to process to number of images or gdal_calcs limit
+        max_args= min(len(numbers),len(large_images))
+        if max_args < len(large_images):
+            input("only merging :"+str(max_args) + " out of : "+str(len(large_images)) + " images, is this OK?")
 
-    processed_nr=A-1
-    for i in range(max_args):
-        character = chr(numbers[i])
-        input_args.append("-"+character+ " "+input_files[i])
+        numbers = numbers[0:max_args]
+        input_files=large_images[0:max_args]
 
-    input(input_args)
-    input_args = " ".join(input_args)
-    input(input_args)
+        #numbers = [0:max_args]
 
-    calc_argument = "--calc " +'"' + "+".join([chr(i) for i in numbers])+ '"'
-    input(calc_argument)
-
-    #input_args = [input_file for input_file in input_files]
-
-    # Arguements.
-
-    #output_file_path = r"C:\Users\B152325\Desktop\befæstelse_status_2023\\"
-
-    output_file_path=output_folder+   "calc_merged_probs" + ".tif"
-    calc_expr = '"A + B"'
-    typeof = '"Float32"'
-
-
-    # Generate string of process.
-    gdal_calc_str = 'python {0} -A {1} -B {2} --outfile={3} --calc={4} --type={5} --hideNoData'
+        processed_nr=A-1
+        for i in range(max_args):
+            character = chr(numbers[i])
+            input_args.append("-"+character+ " "+input_files[i])
+            #gdall_calc only processes a single band at a time, so we need to merge all images for each band and save them to separate images before merging them to a multichannel image
+            input_args.append("--"+character+ "_band="+band)
 
 
-
-    
-
-    gdal_calc_process = "python "+gdal_calc_path +" "+input_args+' --outfile '+'"'+output_file_path +'"'+" "+calc_argument+' --type="Float32" --hideNoData --overwrite --extent=union'
-
-    print(gdal_calc_process)
-    print("gdal_calc running...")
-    # Call process.
-    os.system(gdal_calc_process)
-    print("gdal_calc done")
-    print("created: "+str(output_file_path))
+        input_args = " ".join(input_args)
 
 
+        calc_argument = "--calc " +'"' + "+".join([chr(i) for i in numbers])+ '"'
+        print(calc_argument)
+
+        #input_args = [input_file for input_file in input_files]
+
+        # Arguements.
+
+        #output_file_path = r"C:\Users\B152325\Desktop\befæstelse_status_2023\\"
+
+        output_file_path= str(pathlib.Path(output_folder)/ (output_name+"band_"+band+ "_calc_merged_probs" + ".tif"))
+
+        #output_file_path=output_folder+   "calc_merged_probs" + ".tif"
+        calc_expr = '"A + B"'
+        typeof = '"Float32"'
+
+
+        # Generate string of process.
+        gdal_calc_str = 'python {0} -A {1} -B {2} --outfile={3} --calc={4} --type={5} --hideNoData'
+
+
+
+
+
+        gdal_calc_process = "python "+gdal_calc_path +" "+input_args+' --outfile '+'"'+output_file_path +'"'+" "+calc_argument+' --type="Float32" --hideNoData --overwrite --extent=union'
+
+        print(gdal_calc_process)
+        print("gdal_calc running on "+str()+" nr of overlapping images...")
+        # Call process.
+        os.system(gdal_calc_process)
+        print("gdal_calc done")
+        print("created: "+str(output_file_path))
+        band_images.append(output_file_path)
+    print("now we can merge the images with")
+    print("gdal_merge -separate -o outputfilename inputfiename1 inputfilename2 inputfilename3 ..")
+    merge_channels([str(path) for path in band_images],output_file_path= str(pathlib.Path(output_folder)/ (output_name+"_allbands_" "_calc_merged_probs" + ".tif")))
+    print("merged channels are stored in : "+str(pathlib.Path(output_folder)/ (output_name+"_allbands_" "_calc_merged_probs" + ".tif")))
 
 
 
 def main(args):
-    debug = True
+    debug = False
 
 
     if debug:
-        add_probabilities([r"C:\Users\B152325\Desktop\befæstelse_status_2023\PROBS_O2021_82_20_1_0023_00004975.tif",r"C:\Users\B152325\Desktop\befæstelse_status_2023\PROBS_O2021_82_20_1_0023_00004976.tif",r"C:\Users\B152325\Desktop\befæstelse_status_2023\PROBS_O2021_82_22_1_0032_00000909.tif"])
+        print("merging the proibabiliteis of a few small handselected images")
+        add_probabilities([r"T:\logs_and_models\befastelse\orthoimages_iteration_31_linux\models\1km2\PROBS_O2021_84_40_1_0045_00093310_7000_0.tif",r"T:\logs_and_models\befastelse\orthoimages_iteration_31_linux\models\1km2\PROBS_O2021_84_40_1_0045_00093310_7000_2000.tif"],output_name= "c_name")
         input("the probabilities have now been added!")
 
     #lots of 1000x1000 croped probabilities-images are located in a folder
@@ -112,7 +153,7 @@ def main(args):
     large_images=[]
     for large_image in small_images_for_each_large_image:
         output_path = combine_patches(patches= small_images_for_each_large_image[large_image],large_image_name = large_image,output_file_path=args.Mosaicked_preds_folder)
-        input("done merging images to :"+output_path)
+        print("done merging images to :"+output_path)
         large_images.append(output_path)
 
 
@@ -137,93 +178,3 @@ if __name__ == "__main__":
     args = parser.parse_args()
     main(args)
 
-"""
-gdal_calc_path = r'"C:/Program Files/QGIS 3.22.4/apps/Python39/Scripts/gdal_calc.py"'
-
-#gdal_calc_path = os.path.join(gdal_path, 'gdal_calc.py')
-
-
-input_folder =r"T:\logs_and_models\befastelse\orthoimages_iteration_31\models\befaestelse_dataset_creation_test_2"
-input_files = os.listdir(input_folder)
-
-#find all different image names
-images ={}
-for input_file in input_files:
-    #input(input_file)
-    image_name =  "_".join(input_file.split("_")[:-2])
-    #input(image_name)
-    if image_name in images:
-        images[image_name].append(input_folder+"\\"+input_file)
-    else:
-        images[image_name] = [input_folder+"\\"+input_file]
-
-for name in images:
-    print(name+" have this many images:"+str(len(images[name])))
-input("check out dictionary")
-input(images)
-
-input_files = images[large_file_name] #images["PROBS_O2021_84_40_1_0045_00093328"]
-
-
-
-
-input(input_files)
-input_args =[]
-
-
-
-A = 65
-Z = 90
-a = 97
-z= 122
-numbers = list(range(A,Z+1))+list(range(a,z+1))
-
-#limitinh number of images to process to number of images or gdal_calcs limit
-max_args= min(len(numbers),len(input_files))
-
-numbers = numbers[0:max_args]
-input_files=input_files[0:max_args]
-
-#numbers = [0:max_args]
-
-processed_nr=A-1
-for i in range(max_args):
-    character = chr(numbers[i])
-    input_args.append("-"+character+ " "+input_folder+"\\"+ input_files[i])
-
-input(input_args)
-input_args = " ".join(input_args)
-input(input_args)
-
-calc_argument = "--calc " +'"' + "+".join([chr(i) for i in numbers])+ '"'
-input(calc_argument)
-
-#input_args = [input_file for input_file in input_files]
-
-# Arguements.
-input_file_path = r"T:\logs_and_models\befastelse\orthoimages_iteration_31\models\befaestelse_dataset_creation_test_2\PROBS_O2021_82_19_1_0023_00005473_3000_4000.tif"
-input_file_path2 = r"T:\logs_and_models\befastelse\orthoimages_iteration_31\models\befaestelse_dataset_creation_test_2\PROBS_O2021_82_19_1_0024_00005008_3000_5000.tif"
-
-output_file_path = r"C:\Users\B152325\Desktop\befæstelse_status_2023\\"
-
-output_file_path=output_file_path+   large_file_name + ".tif"
-calc_expr = '"A + B"'
-typeof = '"Float32"'
-
-
-# Generate string of process.
-gdal_calc_str = 'python {0} -A {1} -B {2} --outfile={3} --calc={4} --type={5} --hideNoData'
-
-
-
-gdal_calc_process = gdal_calc_str.format(gdal_calc_path, input_file_path, input_file_path2,
-                                         output_file_path, calc_expr, typeof)
-
-gdal_calc_process = "python "+gdal_calc_path +" "+input_args+' --outfile '+'"'+output_file_path +'"'+" "+calc_argument+' --type="Float32" --hideNoData --overwrite --extent=union'
-
-print(gdal_calc_process)
-# Call process.
-os.system(gdal_calc_process)
-print("created: "+st(output_file_path))
-
-"""
