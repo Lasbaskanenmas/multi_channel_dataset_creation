@@ -40,7 +40,7 @@ def merge_channels(images,output_file_path,gdal_path= "None"):
 
     gdal_merge_process = "python "+gdal_merge_path +' -separate -o '+'"'+output_file_path +'"'+" "+merge_argument
     print(gdal_merge_process)
-    print("merging :"+str(len(images))+ " nr of chanel-images to "+output_file_path)
+    print("merging :"+str(len(images))+ " chanel-images to "+output_file_path)
     # Call process.
     os.system(gdal_merge_process)
     print("done")
@@ -79,7 +79,7 @@ def combine_patches(patches,output_file_path = r"C:\Users\B152325\Desktop\befæs
     number_of_batches = max(1,int(len(patches)/80))
     batches = [list(batch) for batch in np.array_split(patches,number_of_batches)]
     #merge each batch
-    print("dividing the patches into :"+str(number_of_batches)+ " nr of batches")
+    print("dividing the patches into :"+str(number_of_batches)+ " batches")
 
     for id_batch, batch in enumerate(batches):
         batch_start= time.time()
@@ -98,7 +98,7 @@ def combine_patches(patches,output_file_path = r"C:\Users\B152325\Desktop\befæs
         gdalbuildvrt_process = gdalbuildvrt + output_file_path_buldvrt+" "+merge_argument
 
         if use_gdalbuildvrt:
-            print("merging :"+str(len(batch))+ " nr of patches to "+output_file_path_buldvrt)
+            print("merging :"+str(len(batch))+ " patches to "+output_file_path_buldvrt)
         # Call process.
 
         print("##running the following command ###")
@@ -199,7 +199,7 @@ def crate_predictions(large_images,output_folder=r"C:\Users\B152325\Desktop\bef�
     gdal_calc_process = "python "+gdal_calc_path +" "+input_args+' --outfile '+'"'+output_file_path +'"'+" "+calc_argument+' --type="Float32" --hideNoData --overwrite'
 
     print(gdal_calc_process)
-    print("gdal_calc running on "+str(len(input_files))+" nr of overlapping images...")
+    print("gdal_calc running on "+str(len(input_files))+" overlapping images...")
     # Call process.
     os.system(gdal_calc_process)
     print("gdal_calc done")
@@ -226,7 +226,9 @@ def create_channel_images(large_images,channel_images,bands,gdal_path = "None"):
     print("#######################################################")
     print("creating channel-images")
     print("#######################################################")
+    create_channels_start = time.time()
     for i_band in range(len(bands)):
+        create_channel_start = time.time()
         band= bands[i_band]
 
         print("CREATING BAND: "+str(band) + " out of : "+str(len(bands)))
@@ -264,11 +266,15 @@ def create_channel_images(large_images,channel_images,bands,gdal_path = "None"):
         gdal_calc_process = "python "+gdal_calc_path +" "+input_args+' --outfile '+'"'+output_file_path +'"'+" "+calc_argument+' --type="Float32" --hideNoData --overwrite --extent=union'
 
         print(gdal_calc_process)
-        print("gdal_calc running on "+str(len(input_files))+" nr of overlapping images...")
+        print("gdal_calc running on "+str(len(input_files))+" overlapping images...")
         # Call process.
         os.system(gdal_calc_process)
         print("gdal_calc done")
         print("created: "+str(output_file_path))
+        create_channel_end = time.time()
+        print("creating channel took :"+str(create_channel_end-create_channel_start))
+    create_channels_end = time.time()
+    print("creating channels took :"+str(create_channels_end-create_channels_start))
 
 
 def create_multichannel_image(channel_images=None,output_folder=r"C:\Users\B152325\Desktop\befæstelse_status_2023\\",output_name= "a_name",gdal_path = "None"):
