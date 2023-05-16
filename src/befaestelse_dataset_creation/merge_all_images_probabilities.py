@@ -30,6 +30,9 @@ def get_patches_per_large_image(input_folder):
     return images
 
 def merge_channels(images,output_file_path,gdal_path= "None"):
+    """
+    combine all channels into a single multi-channel image
+    """
     gdal_merge_path = '"'+gdal_path +'gdal_merge.py"'  # gdal_merge_path = r'"C:/Program Files/QGIS 3.22.4/apps/Python39/Scripts/gdal_merge.py"'
     #input(output_file_path)
     pathlib.Path(output_file_path).parent.mkdir(parents=True, exist_ok=True)
@@ -44,18 +47,17 @@ def merge_channels(images,output_file_path,gdal_path= "None"):
 
 
 def combine_patches(patches,output_file_path = r"C:\Users\B152325\Desktop\bef√¶stelse_status_2023\\",gdal_path = "None",use_gdalbuildvrt = True):
+    """
+    crate a mosaik by combining all pathces to a single image
+    process is faster with
+    use_gdalbuildvrt = True
+    """
     start_time = time.time()
 
+    #we use a vrt file as a temporary step before turning it into a geotiff
     output_file_path_buldvrt = "tmp2.vrt"
 
     gdalbuildvrt = "gdalbuildvrt "
-
-
-
-
-
-
-
     gdal_merge_path = '"'+gdal_path +'gdal_merge.py"'  #r'"C:/Program Files/QGIS 3.22.4/apps/Python39/Scripts/gdal_merge.py"'
 
 
@@ -210,6 +212,7 @@ def crate_predictions(large_images,output_folder=r"C:\Users\B152325\Desktop\bef√
 def create_channel_images(large_images,channel_images,bands,gdal_path = "None"):
     """
     Crate one image for each segmentation class
+    This operation use gdal_calc and can take some time...
 
     :param large_images:
     :param channel_images:
