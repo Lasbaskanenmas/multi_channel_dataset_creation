@@ -43,12 +43,29 @@ def merge_channels(images,output_file_path,gdal_path= "None"):
     print("done")
 
 
-def combine_patches(patches,output_file_path = r"C:\Users\B152325\Desktop\befæstelse_status_2023\\",gdal_path = "None"):
+def combine_patches(patches,output_file_path = r"C:\Users\B152325\Desktop\befæstelse_status_2023\\",gdal_path = "None",use_gdalbuildvrt = True):
     start_time = time.time()
+
+    output_file_path_buldvrt = "tmp2.vrt"
+
+    gdalbuildvrt = "gdalbuildvrt "
+
+
+
+
+
+
+
     gdal_merge_path = '"'+gdal_path +'gdal_merge.py"'  #r'"C:/Program Files/QGIS 3.22.4/apps/Python39/Scripts/gdal_merge.py"'
 
-    #input(output_file_path)
-    #pathlib.Path(output_file_path).parent.mkdir(parents=True, exist_ok=True)
+
+
+
+
+    #gdal_merge_path = '"'+gdal_path +'gdal_merge.py"'  #r'"C:/Program Files/QGIS 3.22.4/apps/Python39/Scripts/gdal_merge.py"'
+
+
+    pathlib.Path(output_file_path).parent.mkdir(parents=True, exist_ok=True)
     #input("crated folder?")
 
 
@@ -57,7 +74,7 @@ def combine_patches(patches,output_file_path = r"C:\Users\B152325\Desktop\befæs
 
 
     #divide the patches up unto batches (gdal_merge can not handle to many images)
-    number_of_batches = int(len(patches)/30)
+    number_of_batches = max(1,int(len(patches)/80))
     batches = [list(batch) for batch in np.array_split(patches,number_of_batches)]
     #merge each batch
     print("dividing the patches into :"+str(number_of_batches)+ " nr of batches")
@@ -67,21 +84,49 @@ def combine_patches(patches,output_file_path = r"C:\Users\B152325\Desktop\befæs
 
         if id_batch!=0:
             #if we allready have merged some of the files we merge the rest of the files with the output of that operation
-            batch.append(output_file_path)
+            if use_gdalbuildvrt:
+                pass #batch.append(output_file_path_buldvrt)
+            else:
+                batch.append(output_file_path_buldvrtoutput_file_path)
+
 
         merge_argument = " ".join(batch)
 
-        gdal_merge_process = "python "+gdal_merge_path +' -o '+'"'+output_file_path +'"'+" "+' -init 0 -ot float32 --config GDAL_CACHEMAX 128 ' +merge_argument
-        print(gdal_merge_process)
-        print("merging :"+str(len(batch))+ " nr of patches to "+output_file_path)
+        gdal_merge_process = "python "+gdal_merge_path +' -o '+'"'+output_file_path +'"'+" "+' -init 0 -ot float32 ' +merge_argument
+        gdalbuildvrt_process = gdalbuildvrt + output_file_path_buldvrt+" "+merge_argument
+
+        if use_gdalbuildvrt:
+            print("merging :"+str(len(batch))+ " nr of patches to "+output_file_path_buldvrt)
         # Call process.
-        os.system(gdal_merge_process)
+
+        print("##running the following command ###")
+
+        if use_gdalbuildvrt:
+            print(gdalbuildvrt_process)
+            os.system(gdalbuildvrt_process)
+        else:
+            os.system(gdal_merge_process)
+
+        print("##Done ###")
         batch_end = time.time()
 
         print("merging batch took:"+str(batch_end-batch_start))
     end_time = time.time()
     print("end_time-start_time:"+str(end_time-start_time))
     print("done combining patches")
+
+    if use_gdalbuildvrt:
+        print("turn the VRT file into a geotif")
+        print("##running the following command ###")
+        vrt_to_geotif = "gdal_translate -of GTiff "+output_file_path_buldvrt + " "+output_file_path
+        print(vrt_to_geotif)
+        vrt_to_tif_start_time = time.time()
+        os.system(vrt_to_geotif)
+        vrt_to_tif_end_time = time.time()
+        print("##Done ###")
+        print("vrt_to_tif took:"+str(vrt_to_tif_end_time-vrt_to_tif_start_time))
+
+
 
 
 
