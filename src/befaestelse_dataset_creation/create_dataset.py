@@ -16,6 +16,7 @@ import delete_images_with_only_zeroes
 import create_patches
 import move_data_to_separate_folders
 import argparse
+import update_arcgis_feature_class
 
 
 def main(args):
@@ -23,6 +24,10 @@ def main(args):
         print("move_data_to_separate_folders")
         #going from folder/a_name_DSM.tif , folder/a_name_OrtoCIR.tif ... to  DSM/a_name.tif , OrtoCIR/a_name.tif ..
         move_data_to_separate_folders.main(config=args.config)
+    if not "update_arcgis_feature_class" in args.skip:
+        print("update the 'merged_labels' feature class to include the newest data")
+        update_arcgis_feature_class.main(config=args.config)
+
     if not "create_labels" in args.skip:
         print("create_labels")
         #convert the GIS database to label images of same shape as the 'lod-images'

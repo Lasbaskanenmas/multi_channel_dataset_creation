@@ -19,7 +19,9 @@ def main(config):
         path_to_images =pathlib.Path(ini_parser[section]["folder_containing_all_image_types"]).parent / ("splitted_"+ json.loads(ini_parser[section]["datatypes"])[0])
 
     datatype =ini_parser[section]["datatype"]
-    other_data_folders = ["splitted_"+ data_folder for data_folder in ini_parser[section]["datatypes"]]
+    input(ini_parser[section]["datatypes"])
+    other_data_folders = [pathlib.Path(ini_parser[section]["folder_containing_all_image_types"]).parent/("splitted_"+ data_folder) for data_folder in json.loads(ini_parser[section]["datatypes"])]
+    input(other_data_folders)
     nr_of_images_between_validation_samples =int(ini_parser[section]["nr_of_images_between_validation_samples"])
     print("creating all.txt and valid.txt")
     create_all_and_valid_txt.create_all_and_valid(all_txt_filename =all_txt_filename,valid_txt_filename=valid_txt_filename,path_to_training_images=path_to_images,datatype=datatype,nr_of_images_between_validation_samples=nr_of_images_between_validation_samples,other_data_folders=other_data_folders)

@@ -89,7 +89,8 @@ def verify_all_files_exists(file_name,folder_path,other_data_folders =[]):
     all_files_exists = True
 
     for data_folder in  other_data_folders:
-        if not (pathlib.Path(folder_path).parent/pathlib.Path(data_folder)/file_name).is_file():
+        if not (pathlib.Path(data_folder)/file_name).is_file():
+            print("missing file :"+str(pathlib.Path(data_folder)/file_name))
             all_files_exists = False
     #if no other data folders are used its enough that the initial file exists
     if not (pathlib.Path(folder_path)/file_name).is_file():
@@ -108,6 +109,9 @@ def create_all_txt(folder_path,datatype,all_txt_filename,other_data_folders=[]):
     Create all.txt file with all image files included in the folder_path
 
     """
+
+    input("verify")
+    input(other_data_folders)
  
     #folder_path=folder_path.replace("//","/")
     folder_path = pathlib.Path(folder_path)
