@@ -1,8 +1,6 @@
-<<<<<<< HEAD
 import os
 import sys
 import inspect
-
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 
 sys.path.insert(0, currentdir)
@@ -12,14 +10,11 @@ try:
     import create_label_images
 except:
     print("failed to import 'create_label_images' are you missing arcpy ?")
-=======
+
 import create_patches
-import create_label_images
 import create_house_images
->>>>>>> 1537e95b5b056ff10ea0720f2580f93513c3f4cb
 import create_txt_files
 import delete_images_with_only_zeroes
-import create_patches
 import move_data_to_separate_folders
 import argparse
 import update_arcgis_feature_class
