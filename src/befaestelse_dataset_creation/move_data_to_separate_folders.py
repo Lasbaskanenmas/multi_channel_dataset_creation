@@ -12,7 +12,7 @@ def main(config):
     section = "SETTINGS"
 
     for datatype in json.loads(ini_parser[section]["datatypes"]):
-        input("datatype:"+str(datatype))
+        print("datatype:"+str(datatype))
         #set the variables that rename_files.main() need
 
         inputfolder = pathlib.Path(ini_parser[section]["folder_containing_all_image_types"])

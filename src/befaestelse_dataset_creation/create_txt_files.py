@@ -2,19 +2,30 @@ import create_all_and_valid_txt
 import create_train_txt
 import configparser
 import argparse
-import json
+
 import pathlib
+import json
+
+
 def main(config):
     ini_parser = configparser.ConfigParser()
     ini_parser.read(config)
     section = "SETTINGS"
     all_txt_filename =ini_parser[section]["all_txt_filename"]
     valid_txt_filename =ini_parser[section]["valid_txt_filename"]
-    path_to_images =ini_parser[section]["splitted_mask_folder"]
+    if "splitted_mask_folder" in ini_parser[section]:
+        #if the dataset have labels we only want to list the files that exists in the label folder
+        path_to_images =ini_parser[section]["splitted_mask_folder"]
+    else:
+        #if ther is no labels we base the list of filenames on the filenames in the splitted version of one of the datasources
+        path_to_images =pathlib.Path(ini_parser[section]["folder_containing_all_image_types"]).parent / ("splitted_"+ json.loads(ini_parser[section]["datatypes"])[0])
+
     datatype =ini_parser[section]["datatype"]
+
     data_path = ini_parser[section]["data_folder"]
     other_data_folders = [pathlib.Path(data_path)/ ("splitted_"+ data_folder) for data_folder in json.loads(ini_parser[section]["datatypes"])]
     input(other_data_folders)
+
 
     nr_of_images_between_validation_samples =int(ini_parser[section]["nr_of_images_between_validation_samples"])
     print("creating all.txt and valid.txt")

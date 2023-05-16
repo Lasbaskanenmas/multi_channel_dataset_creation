@@ -1,11 +1,28 @@
+<<<<<<< HEAD
+import os
+import sys
+import inspect
+
+currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+
+sys.path.insert(0, currentdir)
+
+
+try:
+    import create_label_images
+except:
+    print("failed to import 'create_label_images' are you missing arcpy ?")
+=======
 import create_patches
 import create_label_images
 import create_house_images
+>>>>>>> 1537e95b5b056ff10ea0720f2580f93513c3f4cb
 import create_txt_files
 import delete_images_with_only_zeroes
 import create_patches
 import move_data_to_separate_folders
 import argparse
+import update_arcgis_feature_class
 
 
 def main(args):
@@ -13,6 +30,10 @@ def main(args):
         print("move_data_to_separate_folders")
         #going from folder/a_name_DSM.tif , folder/a_name_OrtoCIR.tif ... to  DSM/a_name.tif , OrtoCIR/a_name.tif ..
         move_data_to_separate_folders.main(config=args.config)
+    if not "update_arcgis_feature_class" in args.skip:
+        print("update the 'merged_labels' feature class to include the newest data")
+        update_arcgis_feature_class.main(config=args.config)
+
     if not "create_labels" in args.skip:
         print("create_labels")
         #convert the GIS database to label images of same shape as the 'lod-images'

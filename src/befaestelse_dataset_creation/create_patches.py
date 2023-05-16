@@ -10,11 +10,15 @@ def main(config):
 
 
 
+<<<<<<< HEAD
+
+=======
     large_masks_folder = ini_parser[section]["mask_folder"]
     splitted_mask_folder = ini_parser[section]["splitted_mask_folder"]
 
     large_masks_folder_houses = ini_parser[section]["mask_folder_houses"]
     splitted_mask_folder_houses = ini_parser[section]["splitted_mask_folder_houses"]
+>>>>>>> 1537e95b5b056ff10ea0720f2580f93513c3f4cb
 
 
     tile_size_y = ini_parser[section]["tile_size_y"]
@@ -33,12 +37,25 @@ def main(config):
 
 
 
+<<<<<<< HEAD
+    if "mask_folder" in ini_parser[section]:
+        print("dataset includes masks that should be splitted")
+        large_masks_folder = ini_parser[section]["mask_folder"]
+        splitted_mask_folder = ini_parser[section]["splitted_mask_folder"]
+        print("splitting the labels in "+str(large_masks_folder)+"and string them in folder :"+str(splitted_mask_folder))
+        Path(splitted_mask_folder).mkdir(parents=True, exist_ok=True)
+        splitf = split.Split()
+        splitf.splitdst(in_path=large_masks_folder, out_path=splitted_mask_folder, tile_size_x=int(ini_parser[section]["tile_size_x"]), tile_size_y=int(ini_parser[section]["tile_size_y"]),kun_ok_pic=False,ignore_id=ignore_id,cutdatatype="mask_NaN")
+    else:
+        print("dataset does NOT include any masks")
+=======
     print("splitting the labels in "+str(large_masks_folder)+"and string them in folder :"+str(splitted_mask_folder))
     Path(splitted_mask_folder).mkdir(parents=True, exist_ok=True)
     splitf = split.Split()
     splitf.splitdst(in_path=large_masks_folder, out_path=splitted_mask_folder, tile_size_x=int(ini_parser[section]["tile_size_x"]), tile_size_y=int(ini_parser[section]["tile_size_y"]),kun_ok_pic=False,ignore_id=ignore_id,cutdatatype="mask_NaN",overlap=int(overlap))
 
 
+>>>>>>> 1537e95b5b056ff10ea0720f2580f93513c3f4cb
 
 
     datatypes =json.loads(ini_parser[section]["datatypes"])
@@ -47,7 +64,7 @@ def main(config):
     for data_folder in data_folders:
         splitted_folder = data_folder.with_name("splitted_"+data_folder.name)
         Path(splitted_folder).mkdir(parents=True, exist_ok=True)
-        print("splitting the data in "+str(data_folder)+"and storing them in folder :"+str(splitted_folder))
+        print("splitting the data in "+str(data_folder)+", and storing them in folder :"+str(splitted_folder))
         splitf = split.Split()
         failed_files = splitf.splitdst(in_path=data_folder, out_path=splitted_folder, tile_size_x=int(tile_size_x), tile_size_y=int(tile_size_y),kun_ok_pic=False,ignore_id=ignore_id,cutdatatype="photo",stop_on_error=False,overlap=int(overlap))
         print("failed to split the following files: "+str(failed_files))
