@@ -172,17 +172,18 @@ def create_channel_images(large_images,channel_images,bands,gdal_path = "None"):
     :param gdal_path:
     :return:
     """
+    print(str(pathlib.Path(channel_images[0]).parent))
+    pathlib.Path(channel_images[0]).parent.mkdir(parents=True, exist_ok=True)
+    print("created folder?")
     print("#######################################################")
     print("creating channel-images")
     print("#######################################################")
     for i_band in range(len(bands)):
         band= bands[i_band]
 
-        print("CREATING BAND: "+str(band) + " out of : "+str(nr_of_bands))
+        print("CREATING BAND: "+str(band) + " out of : "+str(len(bands)))
 
-        print(str(pathlib.Path(channel_images).parent))
-        pathlib.Path(channel_images).parent.mkdir(parents=True, exist_ok=True)
-        print("crated folder?")
+
         gdal_calc_path = '"'+gdal_path +'gdal_calc.py"' # r'"C:/Program Files/QGIS 3.22.4/apps/Python39/Scripts/gdal_calc.py"'
 
         input_args =[]
@@ -215,7 +216,7 @@ def create_channel_images(large_images,channel_images,bands,gdal_path = "None"):
         gdal_calc_process = "python "+gdal_calc_path +" "+input_args+' --outfile '+'"'+output_file_path +'"'+" "+calc_argument+' --type="Float32" --hideNoData --overwrite --extent=union'
 
         print(gdal_calc_process)
-        print("gdal_calc running on "+str()+" nr of overlapping images...")
+        print("gdal_calc running on "+str(len(input_files))+" nr of overlapping images...")
         # Call process.
         os.system(gdal_calc_process)
         print("gdal_calc done")
