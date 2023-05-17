@@ -10,15 +10,6 @@ def main(config):
 
 
 
-<<<<<<< HEAD
-
-=======
-    large_masks_folder = ini_parser[section]["mask_folder"]
-    splitted_mask_folder = ini_parser[section]["splitted_mask_folder"]
-
-    large_masks_folder_houses = ini_parser[section]["mask_folder_houses"]
-    splitted_mask_folder_houses = ini_parser[section]["splitted_mask_folder_houses"]
->>>>>>> 1537e95b5b056ff10ea0720f2580f93513c3f4cb
 
 
     tile_size_y = ini_parser[section]["tile_size_y"]
@@ -27,37 +18,33 @@ def main(config):
 
     ignore_id = int(ini_parser[section]["ignore_id"])
 
-    print("splitting the houses in "+str(large_masks_folder_houses)+"and string them in folder :"+str(splitted_mask_folder_houses))
-    Path(splitted_mask_folder_houses).mkdir(parents=True, exist_ok=True)
-    splitf = split.Split()
-    splitf.splitdst(in_path=large_masks_folder_houses, out_path=splitted_mask_folder_houses, tile_size_x=int(ini_parser[section]["tile_size_x"]), tile_size_y=int(ini_parser[section]["tile_size_y"]),kun_ok_pic=False,ignore_id=ignore_id,cutdatatype="mask_NaN",overlap=int(overlap))
 
-
-
-
-
-
-<<<<<<< HEAD
+    #handle label masks
     if "mask_folder" in ini_parser[section]:
-        print("dataset includes masks that should be splitted")
+        print("dataset includes label masks that should be splitted")
         large_masks_folder = ini_parser[section]["mask_folder"]
         splitted_mask_folder = ini_parser[section]["splitted_mask_folder"]
         print("splitting the labels in "+str(large_masks_folder)+"and string them in folder :"+str(splitted_mask_folder))
         Path(splitted_mask_folder).mkdir(parents=True, exist_ok=True)
         splitf = split.Split()
-        splitf.splitdst(in_path=large_masks_folder, out_path=splitted_mask_folder, tile_size_x=int(ini_parser[section]["tile_size_x"]), tile_size_y=int(ini_parser[section]["tile_size_y"]),kun_ok_pic=False,ignore_id=ignore_id,cutdatatype="mask_NaN")
+        splitf.splitdst(in_path=large_masks_folder, out_path=splitted_mask_folder, tile_size_x=int(ini_parser[section]["tile_size_x"]),tile_size_y=int(ini_parser[section]["tile_size_y"]),kun_ok_pic=False,ignore_id=ignore_id,cutdatatype="mask_NaN",overlap=int(overlap))
+
     else:
-        print("dataset does NOT include any masks")
-=======
-    print("splitting the labels in "+str(large_masks_folder)+"and string them in folder :"+str(splitted_mask_folder))
-    Path(splitted_mask_folder).mkdir(parents=True, exist_ok=True)
-    splitf = split.Split()
-    splitf.splitdst(in_path=large_masks_folder, out_path=splitted_mask_folder, tile_size_x=int(ini_parser[section]["tile_size_x"]), tile_size_y=int(ini_parser[section]["tile_size_y"]),kun_ok_pic=False,ignore_id=ignore_id,cutdatatype="mask_NaN",overlap=int(overlap))
+        print("dataset does NOT include any label masks")
 
+    # handle house masks
+    if "mask_folder_houses" in ini_parser[section]:
+        print("dataset includes house masks that should be splitted")
+        large_masks_folder_houses = ini_parser[section]["mask_folder_houses"]
+        splitted_mask_folder_houses = ini_parser[section]["splitted_mask_folder_houses"]
+        print("splitting the houses in "+str(large_masks_folder_houses)+"and string them in folder :"+str(splitted_mask_folder_houses))
+        Path(splitted_mask_folder_houses).mkdir(parents=True, exist_ok=True)
+        splitf = split.Split()
+        splitf.splitdst(in_path=large_masks_folder_houses, out_path=splitted_mask_folder_houses, tile_size_x=int(ini_parser[section]["tile_size_x"]), tile_size_y=int(ini_parser[section]["tile_size_y"]),kun_ok_pic=False,ignore_id=ignore_id,cutdatatype="mask_NaN",overlap=int(overlap))
+    else:
+        print("dataset does not include any house masks")
 
->>>>>>> 1537e95b5b056ff10ea0720f2580f93513c3f4cb
-
-
+    # handle input data
     datatypes =json.loads(ini_parser[section]["datatypes"])
     data_folders_parent_directory =Path(ini_parser[section]["folder_containing_all_image_types"]).parent
     data_folders = [data_folders_parent_directory / datatype for datatype in datatypes]
