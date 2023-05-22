@@ -100,7 +100,7 @@ class CreateMasks:
 
             extentString = str(rasterExtent).replace(' NaN NaN NaN NaN','')
             print("extentString: " + extentString)
-            x = basename.upper().replace('.PNG','.tif').replace('.JPG','.tif').replace('.TIF','.tif')
+            x = basename # .upper().replace('.PNG','.tif').replace('.JPG','.tif').replace('.TIF','.tif')
             with arcpy.EnvManager(extent=rasterExtent):     # Sæt ortofotoets extent som default-extent i ArcGIS geoprocesserings-miljø.
                 outputFile = raw_mask_folder + "\\" + x
                 reclassFile = mask_folder + "\\" + x

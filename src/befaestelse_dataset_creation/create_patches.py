@@ -48,8 +48,9 @@ def main(config):
     datatypes =json.loads(ini_parser[section]["datatypes"])
     data_folders_parent_directory =Path(ini_parser[section]["folder_containing_all_image_types"]).parent
     data_folders = [data_folders_parent_directory / datatype for datatype in datatypes]
+    splitted_data_folders_parent_directory = Path(ini_parser[section]["splitted_data_parent_folder"])
     for data_folder in data_folders:
-        splitted_folder = data_folder.with_name("splitted_"+data_folder.name)
+        splitted_folder = splitted_data_folders_parent_directory/data_folder.name
         Path(splitted_folder).mkdir(parents=True, exist_ok=True)
         print("splitting the data in "+str(data_folder)+", and storing them in folder :"+str(splitted_folder))
         splitf = split.Split()
