@@ -32,36 +32,50 @@ import time
 def main(args):
     create_dataset_start_time = time.time()
     if not "move_data_to_separate_folders" in args.skip:
+        print("#######################################")
         print("move_data_to_separate_folders")
+        print("#######################################")
         #going from folder/a_name_DSM.tif , folder/a_name_OrtoCIR.tif ... to  DSM/a_name.tif , OrtoCIR/a_name.tif ..
         move_data_to_separate_folders.main(config=args.config)
     if not "update_arcgis_feature_class" in args.skip:
+        print("#######################################")
         print("update the 'merged_labels' feature class to include the newest data")
+        print("#######################################")
         update_arcgis_feature_class.main(config=args.config)
 
     if not "create_labels" in args.skip:
+        print("#######################################")
         print("create_labels")
+        print("#######################################")
         #convert the GIS database to label images of same shape as the 'lod-images'
         #if there are no label data for the area covered by the image, we don create any label
         create_label_images.main(config=args.config)
 
     if not "create_houses" in args.skip:
+        print("#######################################")
         print("create_houses")
+        print("#######################################")
         #convert the GIS database to images of same shape as the 'lod-images'
         #if there are no house polygons for the area covered by the image, we still create black images
         create_house_images.main(config=args.config)
 
 
     if not "create_patches" in args.skip:
+        print("#######################################")
         print("create_patches")
+        print("#######################################")
         #split the data and label-images up into smaler pathces e.g 1000x1000
         create_patches.main(config=args.config)
     if not "remove_empty_label_images" in args.skip:
+        print("#######################################")
         print("remove_empty_label_images")
+        print("#######################################")
         #remove all images without valid labels (label image must exist AND ,must contain pixels with labels !=0)
         delete_images_with_only_zeroes.main(config=args.config)
     if not "create_text_files" in args.skip:
+        print("#######################################")
         print("create_text_files")
+        print("#######################################")
         #divide the dataset into trainingset and validationset and save the split as all.txt, train.txt and valid.txt
         create_txt_files.main(config=args.config)
 

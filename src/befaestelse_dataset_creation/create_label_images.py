@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-
+import shutil
 import os
 from arcpy import env
 from arcpy.sa import *
@@ -216,6 +216,24 @@ def main(config):
     outputCellSize= float(ini_parser[section]['outputCellSize'])
     unknown_value2 = int(ini_parser[section]['unknown_value2'])
     create_masks_obj= CreateMasks()
+
+    #remove all folders before filling them with new images
+    for folder in [raw_mask_folder,mask_folder]:
+        if pathlib.Path(folder).exists():
+            try:
+                print("##")
+                print("emptying:"+str(folder))
+                shutil.rmtree(str(pathlib.Path(folder)))
+                pathlib.Path(folder).mkdir(parents=True, exist_ok=True)
+                print("done emptying: "+str(folder))
+                print("##")
+            except:
+                print("###################################")
+                print("FAILED emptying "+str(folder))
+                print("###################################")
+
+
+
 
 
 

@@ -17,7 +17,7 @@ def verify_all_files_exists(file_name,folder_path,other_data_folders =[]):
     for other_data_folder in  other_data_folders:
         if not (other_data_folder/file_name).is_file():
             all_files_exists = False
-            print("this file does not exist:"+str((other_data_folder/file_name)))
+            #print("this file does not exist:"+str((other_data_folder/file_name)))
     #if no other data folders are used its enough that the initial file exists
     if not (pathlib.Path(folder_path)/file_name).is_file():
         all_files_exists = False
@@ -45,12 +45,16 @@ def create_all_txt(folder_path,datatype,all_txt_filename,other_data_folders=[]):
     folder_path = pathlib.Path(folder_path)
 
 
+
+
+
     files_in_folder =os.listdir(folder_path)
 
+    print("files in folder :"+str(len(files_in_folder)))
 
-
-    
     files= [x for x in files_in_folder if datatype in x and ".xml" not in x and verify_all_files_exists(x,folder_path,other_data_folders)]
+    print("files in folder that also exists in "+str(other_data_folders)+" :" + str(len(files)))
+
 
     
 

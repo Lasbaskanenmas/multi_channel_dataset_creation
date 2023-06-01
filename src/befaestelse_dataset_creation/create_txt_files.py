@@ -29,7 +29,8 @@ def main(config):
 
 
     nr_of_images_between_validation_samples =int(ini_parser[section]["nr_of_images_between_validation_samples"])
-    print("creating all.txt and valid.txt")
+    print("creating all.txt and valid.txt based on the files in this folder:")
+    print(path_to_images)
 
 
     create_all_and_valid_txt.create_all_and_valid(all_txt_filename =all_txt_filename,valid_txt_filename=valid_txt_filename,path_to_training_images=path_to_images,datatype=datatype,nr_of_images_between_validation_samples=nr_of_images_between_validation_samples,other_data_folders=other_data_folders)

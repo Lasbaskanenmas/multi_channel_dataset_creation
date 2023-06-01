@@ -13,10 +13,10 @@ def main(config):
     section = "SETTINGS"
 
 
-    splitted_mask_folder = ini_parser[section]["splitted_mask_folder"]
+    splitted_mask_folder = pathlib.Path(ini_parser[section]["splitted_mask_folder"])
     images_that_define_areas_to_create_labels_for = ini_parser[section]["images_that_define_areas_to_create_labels_for"]
     images_that_define_areas_to_create_labels_for= pathlib.Path(images_that_define_areas_to_create_labels_for)
-    splitted_image_folder= images_that_define_areas_to_create_labels_for.with_name("splitted_"+images_that_define_areas_to_create_labels_for.name)
+    splitted_image_folder= (pathlib.Path(ini_parser[section]["data_folder"])/"splitted")/ images_that_define_areas_to_create_labels_for.name
 
     datatype= ini_parser[section]["datatype"]
 
@@ -37,8 +37,9 @@ def delete_files_with_only_zeros_in_label(image_folder,label_folder,datatype):
 
     images = [image_folder/file for file in os.listdir(image_folder) if pathlib.Path(file).suffix == datatype]
     labels = [label_folder/(file_path.name) for file_path in images]
+    print("verifying that all images have valid labels: .." )
     for i in range(len(images)):
-        print("checking image : "+str(i) + " out of :"+str(len(images)))
+
         #if there is no label to open we throw an exception and delete the image
         try:
 

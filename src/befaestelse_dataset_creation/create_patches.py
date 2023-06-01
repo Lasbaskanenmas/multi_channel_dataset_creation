@@ -31,6 +31,7 @@ def main(config):
         #remove the destination folder and create it anew
         if Path(splitted_mask_folder).exists() and Path(splitted_mask_folder).is_dir():
             shutil.rmtree(Path(splitted_mask_folder))
+        
         Path(splitted_mask_folder).mkdir(parents=True, exist_ok=True)
 
         splitf = split.Split()
@@ -65,12 +66,12 @@ def main(config):
     splitted_data_folders_parent_directory = Path(ini_parser[section]["splitted_data_parent_folder"])
     for data_folder in data_folders:
         splitted_folder = splitted_data_folders_parent_directory/data_folder.name
-        Path(splitted_folder).mkdir(parents=True, exist_ok=True)
+
         print("splitting the data in "+str(data_folder)+", and storing them in folder :"+str(splitted_folder))
 
 
         #remove the destination folder and create it anew
-        if Path(splitted_folder).exists() and Path(splitted_folder).is_dir():
+        if Path(splitted_folder).exists():
             shutil.rmtree(Path(splitted_folder))
         Path(splitted_folder).mkdir(parents=True, exist_ok=True)
 
