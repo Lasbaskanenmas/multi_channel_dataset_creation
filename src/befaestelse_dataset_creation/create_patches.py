@@ -4,6 +4,24 @@ import configparser
 import argparse
 import shutil
 import json
+import time
+
+
+
+
+def clear_folder(folder_path):
+    # remove the destination folder and create it anew
+    print("emptying the folder: "+str(folder_path) + ",start")
+    try:
+        if Path(folder_path).exists() and Path(folder_path).is_dir():
+            shutil.rmtree(Path(folder_path))
+    except:
+        sys.exit("failed to clear the folder :"+str(folder_path)+ " , the folder ,a subfolder or a file in the folder might be open by a program of file browser!")
+    time.sleep(2)
+    Path(folder_path).mkdir(parents=True, exist_ok=True)
+    print("emptying the folder: " + str(folder_path)+ " ,done")
+
+
 def main(config):
     ini_parser = configparser.ConfigParser()
     ini_parser.read(config)
@@ -29,10 +47,8 @@ def main(config):
 
 
         #remove the destination folder and create it anew
-        if Path(splitted_mask_folder).exists() and Path(splitted_mask_folder).is_dir():
-            shutil.rmtree(Path(splitted_mask_folder))
-        
-        Path(splitted_mask_folder).mkdir(parents=True, exist_ok=True)
+        clear_folder(splitted_mask_folder)
+
 
         splitf = split.Split()
         splitf.splitdst(in_path=large_masks_folder, out_path=splitted_mask_folder, tile_size_x=int(ini_parser[section]["tile_size_x"]),tile_size_y=int(ini_parser[section]["tile_size_y"]),kun_ok_pic=False,ignore_id=ignore_id,cutdatatype="mask_NaN",overlap=int(overlap))
@@ -47,11 +63,8 @@ def main(config):
         splitted_mask_folder_houses = ini_parser[section]["splitted_mask_folder_houses"]
         print("splitting the houses in "+str(large_masks_folder_houses)+"and string them in folder :"+str(splitted_mask_folder_houses))
 
-
-        #remove the destination folder and create it anew
-        if Path(splitted_mask_folder_houses).exists() and Path(splitted_mask_folder_houses).is_dir():
-            shutil.rmtree(Path(splitted_mask_folder_houses))
-        Path(splitted_mask_folder_houses).mkdir(parents=True, exist_ok=True)
+        # remove the destination folder and create it anew
+        clear_folder(splitted_mask_folder_houses)
 
 
         splitf = split.Split()
@@ -69,16 +82,16 @@ def main(config):
 
         print("splitting the data in "+str(data_folder)+", and storing them in folder :"+str(splitted_folder))
 
-
-        #remove the destination folder and create it anew
-        if Path(splitted_folder).exists():
-            shutil.rmtree(Path(splitted_folder))
-        Path(splitted_folder).mkdir(parents=True, exist_ok=True)
+        # remove the destination folder and create it anew
+        clear_folder(splitted_folder)
 
 
         splitf = split.Split()
         failed_files = splitf.splitdst(in_path=data_folder, out_path=splitted_folder, tile_size_x=int(tile_size_x), tile_size_y=int(tile_size_y),kun_ok_pic=False,ignore_id=ignore_id,cutdatatype="photo",stop_on_error=False,overlap=int(overlap))
-        print("failed to split the following files: "+str(failed_files))
+        if len(failed_files)>0:
+            print("###############################################################")
+            print("failed to split the following files: "+str(failed_files))
+            print("###############################################################")
 
 
 

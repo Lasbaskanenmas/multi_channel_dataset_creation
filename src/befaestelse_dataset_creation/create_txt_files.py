@@ -14,17 +14,20 @@ def main(config):
     all_txt_filename =ini_parser[section]["all_txt_filename"]
     valid_txt_filename =ini_parser[section]["valid_txt_filename"]
     data_path = ini_parser[section]["data_folder"]
+    splitted_data_parent_folder =pathlib.Path(ini_parser[section]["splitted_data_parent_folder"])
+
+
     if "splitted_mask_folder" in ini_parser[section]:
         #if the dataset have labels we only want to list the files that exists in the label folder
         path_to_images =ini_parser[section]["splitted_mask_folder"]
     else:
         #if ther is no labels we base the list of filenames on the filenames in the splitted version of one of the datasources
-        path_to_images = ((pathlib.Path(data_path)/ "splitted") / json.loads(ini_parser[section]["datatypes"])[0] )
+        path_to_images = (splitted_data_parent_folder / json.loads(ini_parser[section]["datatypes"])[0] )
 
     datatype =ini_parser[section]["datatype"]
 
 
-    other_data_folders = [((pathlib.Path(data_path)/ "splitted") / data_folder) for data_folder in json.loads(ini_parser[section]["datatypes"])]
+    other_data_folders = [(splitted_data_parent_folder / data_folder) for data_folder in json.loads(ini_parser[section]["datatypes"])]
     print(other_data_folders)
 
 

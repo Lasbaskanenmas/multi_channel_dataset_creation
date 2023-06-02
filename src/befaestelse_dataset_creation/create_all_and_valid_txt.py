@@ -85,7 +85,7 @@ def create_all_and_valid(all_txt_filename,valid_txt_filename,path_to_training_im
     create_all_txt(folder_path=path_to_training_images,datatype=datatype,all_txt_filename=all_txt_filename,other_data_folders=other_data_folders)
     create_valid_txt(all_txt_filename=all_txt_filename,valid_txt_filename=valid_txt_filename,pick_every=nr_of_images_between_validation_samples)
 if __name__ == "__main__":
-    usage_example="example usage: \n "+r"python create_all_and_valid_txt.py -f /mnt/trainingdata-disk/trainingdata/RoofTopOrto/images/ -a /mnt/trainingdata-disk/trainingdata//RoofTopOrto/esbjergplusplus/all.txt  -v  /mnt/trainingdata-disk/trainingdata//RoofTopOrto/esbjergplusplus/valid.txt -p 17 -d .tif --other_data_folders splitted_cir splitted_DSM splitted_DTM splitted_OrtoCIR splitted_OrtoRGB splitted_rgb"
+    usage_example="example usage: \n "+r"python create_all_and_valid_txt.py -f /mnt/trainingdata-disk/trainingdata/RoofTopOrto/path/to/splitted/rgb -a /mnt/trainingdata-disk/trainingdata//RoofTopOrto/esbjergplusplus/all.txt  -v  /mnt/trainingdata-disk/trainingdata//RoofTopOrto/esbjergplusplus/valid.txt -p 17 -d .tif --other_data_folders path/to/splitted/cir path/to/splitted/DSM path/to/splitted/DTM path/to/splitted/OrtoCIR path/to/splitted/OrtoRGB"
     # Initialize parser
     parser = argparse.ArgumentParser(
                                     epilog=usage_example,
@@ -96,7 +96,7 @@ if __name__ == "__main__":
     parser.add_argument("-v", "--Valid_filename", help=".eg -v valid.txt",required=True)
     parser.add_argument("-d", "--Datatype", help=".eg -d .tif",required=True)
     parser.add_argument("-p", "--nr_of_images_between_validation_samples",type = int,default = 17, help=".eg pick every 17 when creating a validation set: -p 17",required=False)
-    parser.add_argument("--other_data_folders", help="e.g [splitted_cir splitted_DSM splitted_DTM splitted_OrtoCIR splitted_OrtoRGB splitted_rgb] ", nargs='+', default=[],required=False)
+    parser.add_argument("--other_data_folders", help="e.g [T:\trainingdata\befastelse\ten_channels_1\data\splitted\cir T:\trainingdata\befastelse\ten_channels_1\data\splitted\DSM T:\trainingdata\befastelse\ten_channels_1\data\splitted\DTM T:\trainingdata\befastelse\ten_channels_1\data\splitted\OrtoCIR T:\trainingdata\befastelse\ten_channels_1\data\splitted\OrtoRGB]", nargs='+', default=[],required=False)
 
 
 
@@ -105,7 +105,7 @@ if __name__ == "__main__":
     
     args = parser.parse_args()
 
-    create_all_and_valid(all_txt_filename =args.All_filename,valid_txt_filename=args.Valid_filename,path_to_training_images=args.Folder_path,datatype=args.Datatype,nr_of_images_between_validation_samples=args.nr_of_images_between_validation_samples,other_data_folders=args.other_data_folders)
+    create_all_and_valid(all_txt_filename =args.All_filename,valid_txt_filename=args.Valid_filename,path_to_training_images=args.Folder_path,datatype=args.Datatype,nr_of_images_between_validation_samples=args.nr_of_images_between_validation_samples,other_data_folders=[pathlib.Path(folder_path) for folder_path in args.other_data_folders])
 
 
     #create_all_txt(folder_path=args.Folder_path,datatype=args.Datatype,all_txt_filename=args.All_filename,allowed_blocks=args.Allowed_blocks)

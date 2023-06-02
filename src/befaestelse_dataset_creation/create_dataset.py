@@ -10,7 +10,10 @@ try:
     import arcpy
     arcpy_installed = True
 except:
-    print("NO ARCPY INSTALLED! , This is OK if you dont want to create rasters from polyogns (e.g labels or houses)")
+    print("#########################################################################################################")
+    print("NO arcpy INSTALLED! , This is OK if you dont want to create rasters from polyogns (e.g label or house masks/rasters), otherwise you should use a conda environment that is based on the one you get with a windows arcpy installation")
+    print("labels must be created on a windows machine")
+    print("#########################################################################################################")
 
 
 if arcpy_installed:
@@ -80,7 +83,12 @@ def main(args):
         create_txt_files.main(config=args.config)
 
     create_dataset_end_time = time.time()
+    print("################################################################################")
     print("create_dataset took: "+str(create_dataset_end_time-create_dataset_start_time ))
+    print("################################################################################")
+    print()
+    print()
+
  
 
 

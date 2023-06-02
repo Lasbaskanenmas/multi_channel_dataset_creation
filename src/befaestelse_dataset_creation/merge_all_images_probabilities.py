@@ -51,6 +51,8 @@ def combine_patches(patches,output_file_path = r"C:\Users\B152325\Desktop\befæs
     create a mosaik by combining all pathces to a single image
     process is faster with
     use_gdalbuildvrt = True
+
+    batches are depricated and should be removed! TODO!
     """
     start_time = time.time()
     pathlib.Path(output_file_path).parent.mkdir(parents=True, exist_ok=True)
@@ -83,7 +85,15 @@ def combine_patches(patches,output_file_path = r"C:\Users\B152325\Desktop\befæs
     number_of_batches = max(1,int(len(patches)/80))
     batches = [list(batch) for batch in np.array_split(patches,number_of_batches)]
     #merge each batch
-    print("dividing the patches into :"+str(number_of_batches)+ " batches")
+    #print("dividing the patches into :"+str(number_of_batches)+ " batches")
+
+    gdalbuildvrt_process = gdalbuildvrt + output_file_path_buldvrt + " " + str(pathlib.Path(patches[0]).parent)+"/*.tif"
+    if use_gdalbuildvrt:
+        print(gdalbuildvrt_process)
+        os.system(gdalbuildvrt_process)
+
+
+    '''
 
     for id_batch, batch in enumerate(batches):
         batch_start= time.time()
@@ -117,6 +127,7 @@ def combine_patches(patches,output_file_path = r"C:\Users\B152325\Desktop\befæs
         batch_end = time.time()
 
         print("merging batch took:"+str(batch_end-batch_start))
+    '''
     end_time = time.time()
     print("end_time-start_time:"+str(end_time-start_time))
     print("done combining patches")
@@ -400,7 +411,16 @@ def main(args):
     #e.g {"large_image_name_1.tif":["patch_1.tif","patch_2.tif",,,],}
     small_images_for_each_large_image = get_patches_per_large_image(args.Input_preds)
     large_images=[]
-    for large_image in small_images_for_each_large_image:
+    print("##################################################")
+    print("This script does the following operations:")
+    print("1. combines the ML output for all pathces related to a certain iamge into a inference image of the same shape as the original large-image")
+    print("2. crops the resulting images to the area defined by a shape file (areas outside of the image is filled with zeros)")
+    print("##################################################")
+
+    print("nr of large images to produce:"+str(len(small_images_for_each_large_image)))
+    print("####")
+    for i, large_image  in enumerate(small_images_for_each_large_image):
+        print("working on image :"+str(i)+ " out of :"+str(len(small_images_for_each_large_image)))
         output_file_path= str(pathlib.Path(args.Mosaicked_preds_folder)/  large_image )
         if not args.Skip_combine_patches_to_mosaik:
             combine_patches(patches= small_images_for_each_large_image[large_image],output_file_path=output_file_path,gdal_path = args.Gdal_path)
