@@ -88,7 +88,7 @@ def merge_with_numpy(shape_file,image_folder=r"C:\Users\b199819\Desktop\process_
     print("pred.shape:"+str(pred.shape))
 
     save_tiff(summed.argmax(axis=0).astype(np.uint8),(pathlib.Path(output_folder)/ ("preds"+ pathlib.Path(shape_file).name)).with_suffix(".tif") ,shape_file=shape_file)
-    save_tiff(summed,(pathlib.Path(output_folder)/ ("probs"+ pathlib.Path(shape_file).name)).with_suffix(".tif") ,shape_file=shape_file)
+    #save_tiff(summed,(pathlib.Path(output_folder)/ ("probs"+ pathlib.Path(shape_file).name)).with_suffix(".tif") ,shape_file=shape_file)
 
     '''
 
