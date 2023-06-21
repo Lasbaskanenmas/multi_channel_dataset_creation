@@ -21,7 +21,8 @@ cd befaestelse_dataset_creation
 
 conda activate *your_arcgis_pro_environment*
 
-pip install .
+#####install the library in 'editable' mode. Editable mode makes sure that a change in the code also updates the installed version of the code  
+pip install -e .
 
 
 ## Quickstart

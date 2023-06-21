@@ -73,15 +73,6 @@ def save_tiff(numpy_array,path,shape_file,meter_per_pixel = 0.1):
 
     with rasterio.open(path, 'w', **kwargs) as dst:
         dst.write(numpy_array)
-
-    also_save_without_georeference= True
-    if also_save_without_georeference:
-
-        Image.fromarray(normalize(numpy_array.argmax(axis=0))).save(str(path).replace(".tif","PIL.tif"))
-
-
-
-
     print("saved file: "+str(path))
 
 def normalize(arr):
@@ -93,7 +84,7 @@ def normalize(arr):
     arr = np.array(arr * 255, dtype=np.uint8)
     return arr
 
-def merge_with_numpy(shape_file,image_folder=r"C:\Users\b199819\Desktop\process_block_output\croped_1km2_mosaiks_3",output_folder = r"C:\Users\b199819\Desktop\process_block_output\numpy_merged_3"):
+def merge_with_numpy(shape_file,image_folder=r"C:\Users\b199819\Desktop\process_block_output\croped_1km2_mosaiks_3",output_folder = r"C:\Users\b199819\Desktop\process_block_output\numpy_merged_3",save_probs=False):
 
 
     merge_with_numpy_start = time.time()
@@ -127,35 +118,17 @@ def merge_with_numpy(shape_file,image_folder=r"C:\Users\b199819\Desktop\process_
 
     merge_with_numpy_done_opening = time.time()
 
-    print(summed)
-    print(summed.flatten().sum())
+
 
 
 
     pred = summed.argmax(axis=0).astype(np.uint8)
-    print("pred.shape:"+str(pred.shape))
+
 
     save_tiff(summed.argmax(axis=0).astype(np.uint8),(pathlib.Path(output_folder)/ ("preds"+ pathlib.Path(shape_file).name)).with_suffix(".tif") ,shape_file=shape_file)
-    #save_tiff(summed,(pathlib.Path(output_folder)/ ("probs"+ pathlib.Path(shape_file).name)).with_suffix(".tif") ,shape_file=shape_file)
+    if save_probs:
+        save_tiff(summed.astype(np.float32),(pathlib.Path(output_folder) / ("probs" + pathlib.Path(shape_file).name)).with_suffix(".tif"),shape_file=shape_file)
 
-    '''
-
-
-    rgb = np.transpose(summed[0:3],(1,2,0))
-
-    max=rgb.max()
-    min=rgb.min()
-
-
-    as_numpy = np.array(((rgb-min)/(max-min))*255,dtype=np.uint8)
-    print(as_numpy.shape)
-    print(as_numpy)
-
-    Image.fromarray(as_numpy).save(output_folder+"\\RGBsummed6.tif")
-    print("wrote summed data to: "+str(output_folder+"\\RGBsummed6.tif"))
-    Image.fromarray(summed.argmax(axis=0).astype(np.uint8)).save(output_folder+"\\predictions6.tif")
-    print("wrote predictions  data to: "+str(output_folder+"\\predictions6.tif"))
-    '''
 
     merge_with_numpy_end = time.time()
 
@@ -169,12 +142,12 @@ def merge_with_numpy(shape_file,image_folder=r"C:\Users\b199819\Desktop\process_
 def main(args):
 
 
-    merge_with_numpy(shape_file=args.Shapefile,image_folder=args.Croped_mosaicked_preds_folder,output_folder = args.Output_merged_preds_folder)
+    merge_with_numpy(shape_file=args.Shapefile,image_folder=args.Croped_mosaicked_preds_folder,output_folder = args.Output_merged_preds_folder,save_probs=args.Save_probs)
 
 
 
 if __name__ == "__main__":
-    example_usage= r"python merge_probs_with_numpy.py -m T:\trainingdata\befastelse\1km2\croped_mosaiks -o T:\trainingdata\befastelse\1km2\merged_with_numpy"
+    example_usage= r"python merge_probs_with_numpy.py -m T:\trainingdata\befastelse\1km2\croped_mosaiks -o T:\trainingdata\befastelse\1km2\merged_with_numpy --Save_probs"
     print("########################EXAMPLE USAGE########################")
     print(example_usage)
     print("#############################################################")
@@ -184,6 +157,7 @@ if __name__ == "__main__":
     parser.add_argument("-p", "--Croped_mosaicked_preds_folder", help="path/to/folder/to/save/croped/mosaicked/probs/in (the mosaik are croped to fit the 1km2 tile)",required=True)
     parser.add_argument("-o", "--Output_merged_preds_folder", help="path/to/folder/to/save/merged/probs/in",required=True)
     parser.add_argument("-s", "--Shapefile", help="path/to/shapefile.sh",required=True)
+    parser.add_argument('--Save_probs', action='store_true',default=False)
 
 
 
