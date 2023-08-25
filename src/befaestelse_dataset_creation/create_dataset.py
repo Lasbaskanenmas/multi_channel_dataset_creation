@@ -68,7 +68,7 @@ def main(args):
         print("create_patches")
         print("#######################################")
         #split the data and label-images up into smaler pathces e.g 1000x1000
-        create_patches.main(config=args.config)
+        create_patches.main(config=args.config,skip = args.skip)
     if not "remove_empty_label_images" in args.skip:
         print("#######################################")
         print("remove_empty_label_images")
@@ -93,7 +93,7 @@ def main(args):
 
 
 if __name__ == "__main__":
-    usage_example= "python create_dataset.py --config --skip move_data_to_separate_folders update_arcgis_feature_class create_labels create_houses create_patches remove_empty_label_images create_text_files"
+    usage_example= "python create_dataset.py --config --skip move_data_to_separate_folders update_arcgis_feature_class create_labels create_houses create_patches split_labels remove_empty_label_images create_text_files"
     # Initialize parser
     parser = argparse.ArgumentParser(
         epilog=usage_example,

@@ -22,7 +22,7 @@ def clear_folder(folder_path):
     print("emptying the folder: " + str(folder_path)+ " ,done")
 
 
-def main(config):
+def main(config,skip):
     ini_parser = configparser.ConfigParser()
     ini_parser.read(config)
     section = "SETTINGS"
@@ -39,7 +39,8 @@ def main(config):
 
 
     #handle label masks
-    if "mask_folder" in ini_parser[section]:
+    if "mask_folder" in ini_parser[section] and not "split_labels" in skip:
+        print("########################################################")
         print("dataset includes label masks that should be splitted")
         large_masks_folder = ini_parser[section]["mask_folder"]
         splitted_mask_folder = ini_parser[section]["splitted_mask_folder"]
@@ -52,12 +53,14 @@ def main(config):
 
         splitf = split.Split()
         splitf.splitdst(in_path=large_masks_folder, out_path=splitted_mask_folder, tile_size_x=int(ini_parser[section]["tile_size_x"]),tile_size_y=int(ini_parser[section]["tile_size_y"]),kun_ok_pic=False,ignore_id=ignore_id,cutdatatype="mask_NaN",overlap=int(overlap))
-
+    elif "split_labels" in skip:
+        print("skipping 'split_labels'")
     else:
         print("dataset does NOT include any label masks")
 
     # handle house masks
     if "mask_folder_houses" in ini_parser[section]:
+        print("########################################################")
         print("dataset includes house masks that should be splitted")
         large_masks_folder_houses = ini_parser[section]["mask_folder_houses"]
         splitted_mask_folder_houses = ini_parser[section]["splitted_mask_folder_houses"]
@@ -79,7 +82,7 @@ def main(config):
     splitted_data_folders_parent_directory = Path(ini_parser[section]["splitted_data_parent_folder"])
     for data_folder in data_folders:
         splitted_folder = splitted_data_folders_parent_directory/data_folder.name
-
+        print("########################################################")
         print("splitting the data in "+str(data_folder)+", and storing them in folder :"+str(splitted_folder))
 
         # remove the destination folder and create it anew
@@ -111,7 +114,7 @@ if __name__ == "__main__":
         formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("-c", "--config", help="one or more paths to config file",required=True)
     args = parser.parse_args()
-    main(args.config)
+    main(args.config,skip={})
 
 
 
