@@ -171,9 +171,10 @@ class Split():
 
     def getfiles(self, path):
         filelist = []
-        for file in os.listdir(path):
-            if os.path.isfile(os.path.join(path, file)):
-                filelist.append(file)
+        if os.path.isdir(path):
+            for file in os.listdir(path):
+                if os.path.isfile(os.path.join(path, file)):
+                    filelist.append(file)
         return filelist
 
     def checkpixelvalues(self, path, min, max):
