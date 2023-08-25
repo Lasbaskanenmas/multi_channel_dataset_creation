@@ -1,5 +1,5 @@
 #going from folder/a_name_DSM.tif , folder/a_name_OrtoCIR.tif ... to  DSM/a_name.tif , OrtoCIR/a_name.tif ..
-#images not containing any of the strings ["DSM","DTM","OrtoCIR","OrtoRGB","cir"] arte left in the original folder (typically this will be the lod images)
+#images not containing any of the strings ["DSM","DTM","OrtoCIR","OrtoRGB","cir","rgb"] are left in the original folder 
 
 import rename_files
 import pathlib
