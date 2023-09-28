@@ -100,8 +100,8 @@ if __name__ == "__main__":
         formatter_class=argparse.RawDescriptionHelpFormatter)
 
     parser.add_argument("--config",help ="path to config.ini file e.g ..\..\configs\template_create_dataset.ini",required=True)
-
-    parser.add_argument("--skip",help ="path to folder containing images to be splitted",nargs ='+',default =[],required=False)
+    #create_dataset.py creates house mask besides the label masks. This is however not strictly nececeary and in order to avoiding adding an extra .gdb file to the repository we skip creation of house masks
+    parser.add_argument("--skip",help ="path to folder containing images to be splitted",nargs ='+',default =["create_houses"],required=False)
 
     args = parser.parse_args()
 
