@@ -40,13 +40,13 @@ def main(args):
         print("#######################################")
         #going from folder/a_name_DSM.tif , folder/a_name_OrtoCIR.tif ... to  DSM/a_name.tif , OrtoCIR/a_name.tif ..
         move_data_to_separate_folders.main(config=args.config)
-    if not "update_arcgis_feature_class" in args.skip:
+    if (not "update_arcgis_feature_class" in args.skip) and arcpy_installed:
         print("#######################################")
         print("update the 'merged_labels' feature class to include the newest data")
         print("#######################################")
         update_arcgis_feature_class.main(config=args.config)
 
-    if not "create_labels" in args.skip:
+    if (not "create_labels" in args.skip) and arcpy_installed:
         print("#######################################")
         print("create_labels")
         print("#######################################")
@@ -54,7 +54,7 @@ def main(args):
         #if there are no label data for the area covered by the image, we don create any label
         create_label_images.main(config=args.config)
 
-    if not "create_houses" in args.skip:
+    if (not "create_houses" in args.skip) and arcpy_installed:
         print("#######################################")
         print("create_houses")
         print("#######################################")
@@ -69,7 +69,7 @@ def main(args):
         print("#######################################")
         #split the data and label-images up into smaler pathces e.g 1000x1000
         create_patches.main(config=args.config,skip = args.skip)
-    if not "remove_empty_label_images" in args.skip:
+    if (not "remove_empty_label_images" in args.skip) and arcpy_installed:
         print("#######################################")
         print("remove_empty_label_images")
         print("#######################################")

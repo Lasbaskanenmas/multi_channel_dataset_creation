@@ -1,1 +1,8 @@
-use the conda environment that comes with arcgis if you want to create labels
+name: multi-channel-env-without-arcgis
+channels:
+  - conda-forge
+dependencies:
+  - python=3.9
+  - gdal
+  - pillow
+  - pandas
