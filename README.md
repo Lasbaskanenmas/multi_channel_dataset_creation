@@ -38,9 +38,9 @@ git clone https://github.com/rasmuspjohansson/multi_channel_dataset_creation.git
 cd multi_channel_dataset_creation
 
 conda activate *your_arcgis_pro_environment*
-*alternatively create a fresh environment and activate it with * 
-conda create -n multichannel python=3.8
-conda activate multichannel
+*alternatively create an environment without arcgis (e.g on linux) with * 
+conda env create -f environment.yml
+conda activate multi-channel-env-without-arcgis
 
 Install the library in 'editable' mode. Editable mode makes sure that a change in the code also updates the installed version of the code  
 pip install -e .
