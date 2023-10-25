@@ -93,7 +93,7 @@ def main(args):
 
 
 if __name__ == "__main__":
-    usage_example= "python create_dataset.py --dataset_config path/to/config.ini--skip move_data_to_separate_folders update_arcgis_feature_class create_labels create_houses create_patches split_labels remove_empty_label_images create_text_files"
+    usage_example= "python src\multi_channel_dataset_creation\create_dataset.py --dataset_config configs\create_dataset_example_dataset.ini --skip move_data_to_separate_folders update_arcgis_feature_class create_labels create_houses create_patches split_labels remove_empty_label_images create_text_files"
     # Initialize parser
     parser = argparse.ArgumentParser(
         epilog=usage_example,
