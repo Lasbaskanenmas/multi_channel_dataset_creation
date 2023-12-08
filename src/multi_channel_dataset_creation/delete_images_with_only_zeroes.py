@@ -7,6 +7,7 @@ from PIL import Image
 import argparse
 import pathlib
 import configparser
+import create_train_txt
 def main(config):
     ini_parser = configparser.ConfigParser()
     ini_parser.read(config)
@@ -38,6 +39,8 @@ def delete_files_with_only_zeros_in_label(image_folder,label_folder,datatype):
     images = [image_folder/file for file in os.listdir(image_folder) if pathlib.Path(file).suffix == datatype]
     labels = [label_folder/(file_path.name) for file_path in images]
     print("verifying that all images have valid labels: .." )
+    images_to_process=len(images)
+    processed_images =0
     for i in range(len(images)):
 
         #if there is no label to open we throw an exception and delete the image
@@ -52,6 +55,8 @@ def delete_files_with_only_zeros_in_label(image_folder,label_folder,datatype):
         except:
             os.remove(images[i])
             deleted_images_because_of_missing_label_file.append(images[i])
+        processed_images +=1
+        create_train_txt.print_overwrite("processed : "+str(processed_images) +" images , out of : "+str(images_to_process)+"processed_images/images_to_process: "+str(processed_images/images_to_process))
 
     print("deleted_images_because_of_only_zeros_in_label")
     print(deleted_images_because_of_only_zeros_in_label)
