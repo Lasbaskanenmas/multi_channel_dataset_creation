@@ -41,6 +41,7 @@ def delete_files_with_only_zeros_in_label(image_folder,label_folder,datatype):
     print("verifying that all images have valid labels: .." )
     images_to_process=len(images)
     processed_images =0
+    deleted_files=0
     for i in range(len(images)):
 
         #if there is no label to open we throw an exception and delete the image
@@ -55,8 +56,9 @@ def delete_files_with_only_zeros_in_label(image_folder,label_folder,datatype):
         except:
             os.remove(images[i])
             deleted_images_because_of_missing_label_file.append(images[i])
+            deleted_files +=1
         processed_images +=1
-        create_train_txt.print_overwrite("processed : "+str(processed_images) +" images , out of : "+str(images_to_process)+"processed_images/images_to_process: "+str(processed_images/images_to_process))
+        create_train_txt.print_overwrite("processed : "+str(processed_images) +" images , out of : "+str(images_to_process)+". processed_images/images_to_process: "+str(processed_images/images_to_process)+ " nr of images without the nececeary data : "+str(deleted_files))
 
     print("deleted_images_because_of_only_zeros_in_label")
     print(deleted_images_because_of_only_zeros_in_label)
