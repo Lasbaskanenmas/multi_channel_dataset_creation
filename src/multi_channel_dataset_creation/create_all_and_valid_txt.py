@@ -30,6 +30,9 @@ def verify_all_files_exists(file_name,folder_path,other_data_folders =[]):
 
 
 def remove_files_with_missing_labels_or_datasources(files_in_folder,other_data_folders,label_folder,remove_images_without_label):
+    print("removing the files that are missing input data")
+    if remove_images_without_label:
+        print("removing the files that are missing input data or label data")
     images_that_have_all_datasources = []
     # keep track of how many images where missing label or were missing a datatype
     nr_of_images_missing_data = {label_folder: 0}
@@ -93,7 +96,7 @@ def create_all_txt(folder_path,datatype,all_txt_filename,other_data_folders,labe
     files_in_folder = [x for x in files_in_folder if ((datatype in x )and (".xml" not in x ))]
 
     print("files in folder :"+str(len(files_in_folder)))
-    print("removing the files that are missing input data or label data")
+
 
     files= remove_files_with_missing_labels_or_datasources(files_in_folder,other_data_folders,label_folder,remove_images_without_label)
 
