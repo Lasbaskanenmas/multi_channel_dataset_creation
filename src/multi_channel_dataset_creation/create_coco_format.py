@@ -1,6 +1,9 @@
 """
 Script developed in order to create the coco .json file needed by IBM in order to train a object segmentation model on SDFIs solarcell dataset.
 The .json used for object segmentation should be possible to use also for pure image segmentation models but have only been tested for object segmentation in the IBM project
+
+
+In order to visualize the coco-format lables you can use  https://github.com/rasmuspjohansson/coco-viewer.git
 """
 
 # https://www.immersivelimit.com/create-coco-annotations-from-scratch
