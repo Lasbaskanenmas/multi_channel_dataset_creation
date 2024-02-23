@@ -29,6 +29,7 @@ import argparse
 import time
 import configparser
 
+
 def main(args):
     create_dataset_start_time = time.time()
     if not "move_data_to_separate_folders" in args.skip:
@@ -36,7 +37,7 @@ def main(args):
         print("move_data_to_separate_folders")
         print("#######################################")
         #going from folder/a_name_DSM.tif , folder/a_name_OrtoCIR.tif ... to  DSM/a_name.tif , OrtoCIR/a_name.tif ..
-        move_data_to_separate_folders.main(config=args.dataset_config)
+        move_data_to_separate_folders.main(args = args)
     if (not "update_arcgis_feature_class" in args.skip) and arcpy_installed:
         print("#######################################")
         print("update the 'merged_labels' feature class to include the newest data")
