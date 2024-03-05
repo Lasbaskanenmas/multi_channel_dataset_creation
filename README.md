@@ -27,6 +27,22 @@ Data
             image-X_OrtoCir.tif
             image-X_DSM.tif
             image-X_DTM.tif
+          rgb:
+            image-X.tif
+          cir:
+            image-X.tif          
+          OrtoRGB:
+            image-X.tif          
+          OrtoCIR:
+            image-X.tif         
+          DSM:
+            image-X.tif
+          DTM:
+            image-X.tif            
+          
+Images in original_data will be renamed and moved to the rgb, cir, OrtoRGB, OrtoCIR, DSM and DTM folders.
+
+If no images exists in original_data folder, images in  rgb, cir, OrtoRGB, OrtoCIR, DSM and DTM folders will be used instead.
 
 Labels
 - An ArcGIS project with the different areas marked up as polygons in a feature class
