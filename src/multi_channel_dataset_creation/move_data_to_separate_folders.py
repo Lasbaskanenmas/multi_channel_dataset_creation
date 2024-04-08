@@ -1,6 +1,6 @@
 #going from folder/a_name_DSM.tif , folder/a_name_OrtoCIR.tif ... to  DSM/a_name.tif , OrtoCIR/a_name.tif ..
 #images not containing any of the strings ["DSM","DTM","OrtoCIR","OrtoRGB","cir","rgb"] are left in the original folder 
-import crop_to_shapefile
+
 import rename_files
 import pathlib
 import os
@@ -50,6 +50,7 @@ def main(args):
 
         print("moving data of type :"+str(datatype) +" from : "+str(inputfolder)+ " to "+str(outputfolder))
         if crop_to_shapefile_plus_buffer:
+            import crop_to_shapefile # importing this here in order to avoid having dependency to rasterio when creating labels in the arcgis environment
             crop_to_shapefile.main(inputfolder ,outputfolder,replacestring,newstring,only_consider_files_with_matching_names,shapefile_path=get_shapefile(args) )
         else:        
             rename_files.main(inputfolder ,outputfolder,replacestring,newstring,only_consider_files_with_matching_names,move_instead_of_copy)

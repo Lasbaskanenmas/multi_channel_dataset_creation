@@ -35,6 +35,7 @@ def main(config):
     unmerged_feature_classes= ini_parser[section]["unmerged_feature_classes"]
     print("clearing the feature_class..")
     arcpy.management.DeleteFeatures(merged_labels_feature_class)
+    
     #remove the field that doesnt exists in original arcgis feaure classes(we create it later in the merged_features featureclass)
     arcpy.management.DeleteField(merged_labels_feature_class, "Inverse_area")
     #fill the featureclass with all label data in all the differetn featureclasses the people working with making the labels have done

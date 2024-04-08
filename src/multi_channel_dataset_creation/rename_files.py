@@ -5,8 +5,11 @@ import shutil
 
 def main(inputfolder,outputfolder,replacestring,newstring,only_consider_files_with_matching_names,move_instead_of_copy):
     files = os.listdir(inputfolder)
+    total_files = len(files)
     for (index,file) in enumerate(files):
-        print("working on file :"+str(index) + " out of :"+str(len(files)))
+        #print("working on file :"+str(index) + " out of :"+str(len(files)))
+        completion_percentage = (index / total_files) * 100
+        print(f'\rProcessing file {str(index)}/{total_files} - {completion_percentage:.2f}%', end='', flush=True)
         input_path = pathlib.Path(inputfolder)/pathlib.Path(file)
         output_path = pathlib.Path(outputfolder)/pathlib.Path(file.replace(replacestring,newstring))
         if only_consider_files_with_matching_names and replacestring not in file:
@@ -16,6 +19,7 @@ def main(inputfolder,outputfolder,replacestring,newstring,only_consider_files_wi
                 shutil.move(input_path,output_path)
             else:
                 shutil.copy2(input_path,output_path)
+        print("done")
 
 
 if __name__ == "__main__":

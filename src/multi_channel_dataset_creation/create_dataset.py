@@ -43,6 +43,7 @@ def main(args):
         print("update the 'merged_labels' feature class to include the newest data")
         print("#######################################")
         update_arcgis_feature_class.main(config=args.dataset_config)
+    
 
     if (not "create_labels" in args.skip) and arcpy_installed:
         print("#######################################")
@@ -91,6 +92,6 @@ if __name__ == "__main__":
 
     parser.add_argument("--dataset_config",help ="path to config.ini file e.g ..\..\configs\template_create_dataset.ini",required=True)
     #create_dataset.py creates house mask besides the label masks. This is however not strictly nececeary and in order to avoiding adding an extra .gdb file to the repository we skip creation of house masks
-    parser.add_argument("--skip",help ="steps in the process to be skipped: eg create_houses create_labels ",nargs ='+',default =["create_houses"],required=False)
+    parser.add_argument("--skip",help ="steps in the process to be skipped: eg update_arcgis_feature_class move_data_to_separate_folders create_houses create_labels create_patches create_text_files",nargs ='+',default =["create_houses"],required=False)
     args = parser.parse_args()
     main(args)

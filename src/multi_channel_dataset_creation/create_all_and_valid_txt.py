@@ -55,12 +55,11 @@ def remove_files_with_missing_labels_or_datasources(files_in_folder,other_data_f
                 nr_of_images_missing_data[label_folder] += 1
                 all_files_exists = False
 
-        else:
-
-            for datasource_folder_to_check in other_data_folders:
-                if not (pathlib.Path(datasource_folder_to_check) / x).is_file():
-                    nr_of_images_missing_data[datasource_folder_to_check] += 1
-                    all_files_exists = False
+        #we should always verify that all datasources are there
+        for datasource_folder_to_check in other_data_folders:
+            if not (pathlib.Path(datasource_folder_to_check) / x).is_file():
+                nr_of_images_missing_data[datasource_folder_to_check] += 1
+                all_files_exists = False
 
         if all_files_exists:
             images_that_have_all_datasources.append(x)
@@ -97,7 +96,7 @@ def create_all_txt(folder_path,datatype,all_txt_filename,other_data_folders,labe
 
     print("files in folder :"+str(len(files_in_folder)))
 
-
+    #filter away files that are missing lables or datasources
     files= remove_files_with_missing_labels_or_datasources(files_in_folder,other_data_folders,label_folder,remove_images_without_label)
 
     print("files in folder that have labels and  also exists in "+str(other_data_folders)+" :" + str(len(files)))
