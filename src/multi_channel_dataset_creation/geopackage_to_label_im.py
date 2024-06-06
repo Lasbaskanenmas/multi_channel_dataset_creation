@@ -1,0 +1,193 @@
+#use this script to turn geopackages into label images
+#see python geopackage_to_label_im.py for instructions
+
+import argparse
+import os
+import json
+import geopandas as gpd
+import rasterio
+from rasterio.features import geometry_mask
+import numpy as np
+from osgeo import gdal
+
+def reprocess_tiff(input_path, temp_path):
+    # Use GDAL to read and write the input TIFF to potentially fix it
+    ds = gdal.Open(input_path)
+    driver = gdal.GetDriverByName('GTiff')
+    driver.CreateCopy(temp_path, ds)
+    ds = None  # Close the dataset
+
+def create_mapping(gdf):
+    unique_values = gdf['AI tagklasse (Beregnet)'].unique()
+    return {val: idx + 2 for idx, val in enumerate(unique_values)}  # Start indexing from 2
+
+def save_mapping(mapping, path):
+    with open(path, 'w') as f:
+        json.dump(mapping, f)
+
+def load_mapping(path):
+    with open(path, 'r') as f:
+        return json.load(f)
+
+def process_geotiff(geopackage_path, geotiff_path, output_geotiff_path, value_map,unknown_boarder_size ):
+    print(f"#### Working on creating: {output_geotiff_path} ####")
+    print(f"Area defined by: {geotiff_path}")
+
+    #sometimes failty tiff files are corected by reading and writing them
+    temp_geotiff_path = geotiff_path + '.temp.tif'
+    reprocess_tiff(geotiff_path, temp_geotiff_path)
+    geotiff_path= temp_geotiff_path
+
+    try:
+        # Load the geopackage
+        print("reading geopacjage..")
+        gdf = gpd.read_file(geopackage_path)
+        print("done")
+
+        # Read the input GeoTIFF
+        with rasterio.open(geotiff_path) as src:
+            profile = src.profile
+            transform = src.transform
+            out_shape = src.shape
+
+            # Ensure the profile for the output is for a single-band image
+            profile.update(
+                dtype=rasterio.uint8,
+                count=1,
+                compress='lzw',  # optional, for compression
+                nodata=0
+            )
+
+            # Create an initial array filled with 1 (value for areas not covered by any polygon)
+            output_array = np.ones(out_shape, dtype=rasterio.uint8)
+
+            # Set all values covered by a polygon plus a buffer of size 1 to zero
+            any_value_gdf = gdf[gdf['AI tagklasse (Beregnet)']!= "anything"]
+            if not any_value_gdf.empty:
+                value_mask = geometry_mask([geom.buffer(unknown_boarder_size/2) for geom in any_value_gdf.geometry], transform=transform, invert=True, out_shape=out_shape)
+                output_array[value_mask] = 0
+
+            # Assign values to the output array based on the attribute values
+            # this should overwrite the 0 values except at the boarder areas
+            for value, int_value in value_map.items():
+                value_gdf = gdf[gdf['AI tagklasse (Beregnet)'] == value]
+                if not value_gdf.empty:
+                    value_mask = geometry_mask([geom.buffer(-unknown_boarder_size/2) for geom in value_gdf.geometry], transform=transform, invert=True, out_shape=out_shape)
+                    output_array[value_mask] = int_value
+
+
+
+
+        # Write the output GeoTIFF
+        with rasterio.open(output_geotiff_path, 'w', **profile) as dst:
+            dst.write(output_array, 1)
+        print("range of data in output_array is : " + str(output_array.flatten().min()) + " - " + str(output_array.flatten().max()))
+
+        print(f"Output GeoTIFF saved to {output_geotiff_path}")
+
+    except Exception as e:
+        print(f"Failed to process {geotiff_path}: {e}")
+        return False
+
+    return True
+
+
+'''
+def oldprocess_geotiff(geopackage_path, geotiff_path, output_geotiff_path, value_map):
+    print(f"#### Working on creating: {output_geotiff_path} ####")
+    print(f"Area defined by: {geotiff_path}")
+
+    try:
+        # Load the geopackage
+        gdf = gpd.read_file(geopackage_path)
+
+        # Read the input GeoTIFF
+        with rasterio.open(geotiff_path) as src:
+            profile = src.profile
+            transform = src.transform
+            out_shape = src.shape
+
+            # Ensure the profile for the output is for a single-band image
+            profile.update(
+                dtype=rasterio.uint8,
+                count=1,
+                compress='lzw',  # optional, for compression
+                nodata=0
+            )
+
+            # Create an initial array filled with 1 (value for areas not covered by any polygon)
+            output_array = np.ones(out_shape, dtype=rasterio.uint8)
+
+            # Assign values to the output array based on the attribute values
+            for value, int_value in value_map.items():
+                value_gdf = gdf[gdf['AI tagklasse (Beregnet)'] == value]
+                if not value_gdf.empty:
+                    value_mask = geometry_mask([geom for geom in value_gdf.geometry], transform=transform, invert=True, out_shape=out_shape)
+                    output_array[value_mask] = int_value
+
+            # Set areas covered by polygons with nodata to 0
+            nodata_gdf = gdf[gdf['AI tagklasse (Beregnet)'].isna()]
+            if not nodata_gdf.empty:
+                nodata_mask = geometry_mask([geom for geom in nodata_gdf.geometry], transform=transform, invert=True, out_shape=out_shape)
+                output_array[nodata_mask] = 0
+
+        # Write the output GeoTIFF
+        with rasterio.open(output_geotiff_path, 'w', **profile) as dst:
+            dst.write(output_array, 1)
+        print("range of data in output_array is : " + str(output_array.flatten().min()) + " - " + str(output_array.flatten().max()))
+
+        print(f"Output GeoTIFF saved to {output_geotiff_path}")
+
+    except Exception as e:
+        print(f"Failed to process {geotiff_path}: {e}")
+        return False
+
+    return True
+'''
+def process_all_geotiffs(geopackage_path, input_folder, output_folder, value_map,unknown_boarder_size):
+    if not os.path.exists(output_folder):
+        os.makedirs(output_folder)
+
+    failed_files = []
+
+    for file_name in os.listdir(input_folder):
+        if file_name.endswith('.tiff') or file_name.endswith('.tif'):
+            input_path = os.path.join(input_folder, file_name)
+            output_path = os.path.join(output_folder, file_name)
+            if not process_geotiff(geopackage_path, input_path, output_path, value_map,unknown_boarder_size):
+                failed_files.append(file_name)
+
+    # Save the failed files to a text file
+    with open('failed_files.txt', 'w') as f:
+        for file in failed_files:
+            f.write(f"{file}\n")
+
+    # Print the failed files
+    if failed_files:
+        print("Failed files:")
+        for file in failed_files:
+            print(file)
+
+def main():
+    parser = argparse.ArgumentParser(description='Process GeoTIFF files based on GeoPackage data.')
+    parser.add_argument('--geopackage', type=str, required=True, help='Path to the GeoPackage file')
+    parser.add_argument('--input_folder', type=str, required=True, help='Path to the folder containing input GeoTIFF files')
+    parser.add_argument('--output_folder', type=str, required=True, help='Path to the folder to save output GeoTIFF files')
+    parser.add_argument('--create_new_mapping', type=bool, default=True, help='Whether to create a new mapping from the GeoPackage')
+    parser.add_argument('--path_to_mapping', type=str, required=True, help='Path to save or load the mapping file')
+    parser.add_argument('--unknown_boarder_size', type=float, default=0.1, help='how large baorder of "unkown"==0 values should there be around teh areas defined by polygons? set to 0 to not have any boarder at all')
+
+
+    args = parser.parse_args()
+
+    if args.create_new_mapping:
+        gdf = gpd.read_file(args.geopackage)
+        value_map = create_mapping(gdf)
+        save_mapping(value_map, args.path_to_mapping)
+    else:
+        value_map = load_mapping(args.path_to_mapping)
+
+    process_all_geotiffs(args.geopackage, args.input_folder, args.output_folder, value_map,args.unknown_boarder_size)
+
+if __name__ == '__main__':
+    main()
