@@ -59,7 +59,7 @@ def main(config,skip):
         print("dataset does NOT include any label masks")
 
     # handle house masks
-    if "mask_folder_houses" in ini_parser[section]:
+    if "mask_folder_houses" in ini_parser[section] and not "split_houses" in skip:
         print("########################################################")
         print("dataset includes house masks that should be splitted")
         large_masks_folder_houses = ini_parser[section]["mask_folder_houses"]
