@@ -14,8 +14,13 @@ from osgeo import gdal
 
 
 def create_mapping(gdf):
-    unique_values = gdf['AI tagklasse (Beregnet)'].unique()
-    return {val: idx + 2 for idx, val in enumerate(unique_values)}  # Start indexing from 2
+    """
+    Find the classes that exist in the geopackage
+    Also including the ignore_index == 0 wichmeans that we dont cate how the ML model classifies the pixel, and the background class == 1 wich means that the pixel NOT is a building
+    """
+    unique_values = list(gdf['AI tagklasse (Beregnet)'].unique())
+    unique_values= ["ignore_index","background"]+unique_values
+    return {val: idx + 0 for idx, val in enumerate(unique_values)}  # Start indexing from 0 (ignore_index ==0, background == 1 )
 
 def save_mapping(mapping, path):
     with open(path, 'w') as f:
@@ -106,6 +111,8 @@ def process_all_geotiffs(geopackage_path, input_folder, output_folder, value_map
             print(file)
 
 def main():
+    example_usage = 'python geopackage_to_label_im.py --geopackage "F:\SDFI\DATA\MachineLearning\bygningsudpegning\labels\GeoDanmark -AI projekt\GeoDanmark -AI projekt\AI_bygning_labels.gpkg" --input_folder \\prod.sitad.dk\dfs\CU2314\F-DREV\SDFI\DATA\MachineLearning\bygningsudpegning\data\machine_learning_ready_data\rgb --create_new_mapping --path_to_mapping \\prod.sitad.dk\dfs\CU2314\F-DREV\SDFI\DATA\MachineLearning\bygningsudpegning\data\machine_learning_ready_data\mapping2.txt --unknown_boarder_size 0.1 --output_folder \\prod.sitad.dk\dfs\CU2314\F-DREV\SDFI\DATA\MachineLearning\bygningsudpegning\labels\large_labels'
+    print("example usage: "+str(example_usage))
     parser = argparse.ArgumentParser(description='Process GeoTIFF files based on GeoPackage data.')
     parser.add_argument('--geopackage', type=str, required=True, help='Path to the GeoPackage file')
     parser.add_argument('--input_folder', type=str, required=True, help='Path to the folder containing input GeoTIFF files')
