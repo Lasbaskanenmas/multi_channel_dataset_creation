@@ -75,6 +75,7 @@ def process_geotiff(geopackage_path, geotiff_path, output_geotiff_path, value_ma
                 dtype=rasterio.uint8,
                 count=1,
                 compress='lzw',  # optional, for compression
+                photometric='Grayscale',
                 nodata=0
             )
 
