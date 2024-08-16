@@ -62,12 +62,11 @@ def main(args):
         create_house_images.main(config=args.dataset_config)
 
 
-    if not "create_patches" in args.skip:
-        print("#######################################")
-        print("create_patches")
-        print("#######################################")
-        #split the data and label-images up into smaler pathces e.g 1000x1000
-        create_patches.main(config=args.dataset_config,skip = args.skip)
+    print("#######################################")
+    print("create_patches") #splitting input data and label data can be stopped by including create_patches and split_labels in args.skip
+    print("#######################################")
+    #split the data and label-images up into smaler pathces e.g 1000x1000
+    create_patches.main(config=args.dataset_config,skip = args.skip)
 
     if not "create_text_files" in args.skip:
         print("#######################################")
