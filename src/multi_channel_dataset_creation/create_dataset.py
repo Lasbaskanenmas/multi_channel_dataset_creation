@@ -62,12 +62,11 @@ def main(args):
         create_house_images.main(config=args.dataset_config)
 
 
-    if not "create_patches" in args.skip:
-        print("#######################################")
-        print("create_patches")
-        print("#######################################")
-        #split the data and label-images up into smaler pathces e.g 1000x1000
-        create_patches.main(config=args.dataset_config,skip = args.skip)
+    print("#######################################")
+    print("create_patches") #splitting input data and label data can be stopped by including create_patches and split_labels in args.skip
+    print("#######################################")
+    #split the data and label-images up into smaler pathces e.g 1000x1000
+    create_patches.main(config=args.dataset_config,skip = args.skip)
 
     if not "create_text_files" in args.skip:
         print("#######################################")
@@ -92,6 +91,6 @@ if __name__ == "__main__":
 
     parser.add_argument("--dataset_config",help ="path to config.ini file e.g ..\..\configs\template_create_dataset.ini",required=True)
     #create_dataset.py creates house mask besides the label masks. This is however not strictly nececeary and in order to avoiding adding an extra .gdb file to the repository we skip creation of house masks
-    parser.add_argument("--skip",help ="steps in the process to be skipped: eg update_arcgis_feature_class move_data_to_separate_folders create_houses create_labels create_patches create_text_files",nargs ='+',default =["create_houses"],required=False)
+    parser.add_argument("--skip",help ="steps in the process to be skipped: eg update_arcgis_feature_class move_data_to_separate_folders create_houses create_labels create_patches split_labels create_text_files",nargs ='+',default =["create_houses"],required=False)
     args = parser.parse_args()
     main(args)

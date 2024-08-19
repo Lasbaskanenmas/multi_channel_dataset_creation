@@ -35,7 +35,8 @@ def load_mapping(path):
     with open(path, 'r') as f:
         return json.load(f)
 
-def process_geotiff(geopackage_path, geotiff_path, output_geotiff_path, value_map,unknown_boarder_size ):
+def process_geotiff(gdf, geotiff_path, output_geotiff_path, value_map,unknown_boarder_size ):
+    print("#################################################################################")
     print(f"#### Working on creating: {output_geotiff_path} ####")
     print(f"Area defined by: {geotiff_path}")
 
@@ -56,18 +57,6 @@ def process_geotiff(geopackage_path, geotiff_path, output_geotiff_path, value_ma
                     for field, field_type in fields.items():
                         print(f" - {field} ({field_type})")
         ###################################################################################
-
-        # Load the geopackage
-        print("reading geopackage..")
-        gdf = gpd.read_file(geopackage_path,layer="GeoDanmark/BBR Bygning")
-
-        # Sort polygons by area (ascending order)
-        # this is done in order to handle the situation where several polygons overlap.
-        # in these situations the smallest polygon should have priority (the situation is almost always that a large polygon had some erro and was corected with a smaller polygon that was meant to be 'ontop' opf the older large one.)
-        print("sorting all polygons by area")
-        gdf = gdf.sort_values(by='geometry', key=lambda x: x.area)
-        print("done")
-
 
 
         # Read the input GeoTIFF
@@ -107,10 +96,8 @@ def process_geotiff(geopackage_path, geotiff_path, output_geotiff_path, value_ma
             #3.handle invalid labels
             #handle invalid labels by setting them to 0 == ingore_label
             # Set all areas with "Dårlig label" == True to unknown
-            unknown_gdf = gdf[gdf['Dårlig label']]
-            print(unknown_gdf)
             unknown_gdf = gdf[gdf['Dårlig label']==True]
-            print(unknown_gdf)
+            #print(unknown_gdf)
             if not unknown_gdf.empty:
                 unknown_mask = geometry_mask([geom.buffer(unknown_boarder_size/2) for geom in unknown_gdf.geometry], transform=transform, invert=True, out_shape=out_shape)
                 output_array[unknown_mask] = 0
@@ -122,12 +109,6 @@ def process_geotiff(geopackage_path, geotiff_path, output_geotiff_path, value_ma
             if not value_gdf.empty:
                 value_mask = geometry_mask([geom for geom in value_gdf.geometry], transform=transform, invert=True, out_shape=out_shape)
                 output_array[value_mask] = 0
-
-
-
-
-
-
 
 
 
@@ -150,12 +131,38 @@ def process_all_geotiffs(geopackage_path, input_folder, output_folder, value_map
         os.makedirs(output_folder)
 
     failed_files = []
+    # Load the geopackage
+    print("")
+    print("###############################################################################")
+    print("###############################################################################")
+    print("reading geopackage..")
+    gdf = gpd.read_file(geopackage_path,layer="GeoDanmark/BBR Bygning")
+    #adding aera as a column makes it easier to sort the dataframe by area
+    gdf['area'] = gdf.geometry.area  # Calculate the area if not already present
+
+    # Sort polygons by area (decending order , in order to get the smallest areas last)
+    # this is done in order to handle the situation where several polygons overlap.
+    # in these situations the smallest polygon should have priority (the situation is almost always that a large polygon had some erro and was corected with a smaller polygon that was meant to be 'ontop' opf the older large one.)
+    #by handling the polygons with smallest areas last , we will overwrite the values that were written for the larger polygons if the polygons overlapped
+    print("sorting all polygons by area")
+    print("before sorting: " +str(gdf.geometry.area[0]))
+    print(gdf.head())  # Inspect the first few rows of the GeoDataFrame
+    #        #gdf = gdf.sort_values(by='geometry', key=get_area_func)
+    gdf = gdf.sort_values(by='area',ascending=False)
+    print("after sorting: " +str(gdf.geometry.area[0]))
+    print(gdf.head())  # Inspect the first few rows of the GeoDataFrame
+    print("###############################################################################")
+    print("###############################################################################")
+    print("")
 
     for file_name in os.listdir(input_folder):
         if file_name.endswith('.tiff') or file_name.endswith('.tif'):
             input_path = os.path.join(input_folder, file_name)
             output_path = os.path.join(output_folder, file_name)
-            if not process_geotiff(geopackage_path, input_path, output_path, value_map,unknown_boarder_size):
+
+
+
+            if not process_geotiff(gdf, input_path, output_path, value_map,unknown_boarder_size):
                 failed_files.append(file_name)
 
     # Save the failed files to a text file

@@ -75,32 +75,34 @@ def main(config,skip):
     else:
         print("dataset does not include any house masks")
 
-    # handle input data
-    datatypes =json.loads(ini_parser[section]["datatypes"])
-    data_folders_parent_directory =Path(ini_parser[section]["data_folder"])
-    data_folders = [data_folders_parent_directory / datatype for datatype in datatypes]
-    splitted_data_folders_parent_directory = Path(ini_parser[section]["splitted_data_parent_folder"])
-    for data_folder in data_folders:
-        splitted_folder = splitted_data_folders_parent_directory/data_folder.name
-        print("########################################################")
-        print("splitting the data in "+str(data_folder)+", and storing them in folder :"+str(splitted_folder))
+    if not "create_patches" in skip:
 
-        # remove the destination folder and create it anew
-        clear_folder(splitted_folder)
+        # handle input data
+        datatypes =json.loads(ini_parser[section]["datatypes"])
+        data_folders_parent_directory =Path(ini_parser[section]["data_folder"])
+        data_folders = [data_folders_parent_directory / datatype for datatype in datatypes]
+        splitted_data_folders_parent_directory = Path(ini_parser[section]["splitted_data_parent_folder"])
+        for data_folder in data_folders:
+            splitted_folder = splitted_data_folders_parent_directory/data_folder.name
+            print("########################################################")
+            print("splitting the data in "+str(data_folder)+", and storing them in folder :"+str(splitted_folder))
+
+            # remove the destination folder and create it anew
+            clear_folder(splitted_folder)
 
 
-        splitf = split.Split()
-        if data_folder.name  in ["OrtoRGB","rgb","OrtoCIR","cir"]:
-            cutdatatype = "photo"
-        elif ["DSM","DTM"]:
-            cutdatatype = "single_channel"
-        else:
-            sys.exit("dont know how to splitt data of type :"+str(data_folder.name))
-        failed_files = splitf.splitdst(in_path=data_folder, out_path=splitted_folder, tile_size_x=int(tile_size_x), tile_size_y=int(tile_size_y),kun_ok_pic=False,ignore_id=ignore_id,cutdatatype=cutdatatype,stop_on_error=False,overlap=int(overlap))
-        if len(failed_files)>0:
-            print("###############################################################")
-            print("failed to split the following files: "+str(failed_files))
-            print("###############################################################")
+            splitf = split.Split()
+            if data_folder.name  in ["OrtoRGB","rgb","OrtoCIR","cir"]:
+                cutdatatype = "photo"
+            elif ["DSM","DTM"]:
+                cutdatatype = "single_channel"
+            else:
+                sys.exit("dont know how to splitt data of type :"+str(data_folder.name))
+            failed_files = splitf.splitdst(in_path=data_folder, out_path=splitted_folder, tile_size_x=int(tile_size_x), tile_size_y=int(tile_size_y),kun_ok_pic=False,ignore_id=ignore_id,cutdatatype=cutdatatype,stop_on_error=False,overlap=int(overlap))
+            if len(failed_files)>0:
+                print("###############################################################")
+                print("failed to split the following files: "+str(failed_files))
+                print("###############################################################")
 
 
 
