@@ -8,7 +8,7 @@ import create_train_txt
 import time
 import shutil
 import overlap
-
+import random
 
 
 
@@ -150,6 +150,7 @@ def remove_overlap_from_all_txt(path_to_all_txt,path_to_valid_txt,folder_path,im
 
     with open(path_to_all_including_overlap, "r") as all_files:
         all_lines = [line.strip() for line in all_files.readlines()]
+        random.shuffle(all_lines)
     with open(path_to_valid_txt, "r") as valid_file:
         valid_lines = [line.strip() for line in valid_file.readlines()]
 
@@ -160,7 +161,9 @@ def remove_overlap_from_all_txt(path_to_all_txt,path_to_valid_txt,folder_path,im
             # Read all lines into a list, stripping any trailing newline characters
             large_tiff_files = [line.strip() for line in file]
             #remove the .tif in order to get the part of the filename that also occurs in the crop
-            large_tiff_files =[large_tiff_file.strip(".tif") for large_tiff_file in large_tiff_files]
+            #also remove the parent folders
+
+            large_tiff_files =[large_tiff_file.strip(".tif").split("/")[-1] for large_tiff_file in large_tiff_files]
 
     # for all files in the dataset (all.txt)
     nr_of_files = len(all_lines)
@@ -174,8 +177,15 @@ def remove_overlap_from_all_txt(path_to_all_txt,path_to_valid_txt,folder_path,im
             #e.g: remove the "_7000_2880.tif" part of "O2021_82_24_1_0020_00004289_7000_2880.tif"
             # if the trainingset set file is a croped version of any of the large tiff images that intersect with the validationset
             #then we should check for actuall overlaps
-            if not "_".join(filename.split("_")[0:-2]) in large_tiff_files:
+
+            #input("_".join(filename.split("_")[0:-2]))
+            #input(large_tiff_files[0])
+            if not ("_".join(filename.split("_")[0:-2]) in large_tiff_files):
                 search_for_overlap = False
+                print("dont search for overlap")
+            else:
+                search_for_overlap = True
+                print("search for overlap")
 
         if search_for_overlap:
             # compare it to each file in valid.txt
@@ -217,6 +227,8 @@ def remove_overlap_from_all_txt(path_to_all_txt,path_to_valid_txt,folder_path,im
     return path_to_all_txt
 
 def create_all_and_valid(all_txt_filename,valid_txt_filename,path_to_training_images,datatype,nr_of_images_between_validation_samples,other_data_folders,label_folder,remove_images_without_label ,remove_overlap,use_fixed_validation_set,images_must_be_crops_of_these_images_path):
+    if images_must_be_crops_of_these_images_path in ["False","None","false"]:
+        images_must_be_crops_of_these_images_path = False
 
     create_all_txt(folder_path=path_to_training_images,datatype=datatype,all_txt_filename=all_txt_filename,other_data_folders=other_data_folders,label_folder=label_folder,remove_images_without_label=remove_images_without_label)
     #we use a fixed validation set in order to easier be able to compare results between runs
