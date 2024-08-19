@@ -232,11 +232,11 @@ def remove_overlap_from_all_txt(path_to_all_txt,path_to_valid_txt,folder_path,im
         (time.time() - create_all_without_overlap_txt_start) / 60) + ", minutes")
     return path_to_all_txt
 
-def create_all_and_valid(all_txt_filename,valid_txt_filename,path_to_training_images,datatype,nr_of_images_between_validation_samples,other_data_folders,label_folder,remove_images_without_label ,remove_overlap,use_fixed_validation_set,images_must_be_crops_of_these_images_path):
+def create_all_and_valid(all_txt_filename,valid_txt_filename,path_to_training_images,datatype,nr_of_images_between_validation_samples,other_data_folders,label_folder,remove_images_without_label ,remove_overlap,use_fixed_validation_set,images_must_be_crops_of_these_images_path,text_file_listing_images_to_consider):
     if images_must_be_crops_of_these_images_path in ["False","None","false"]:
         images_must_be_crops_of_these_images_path = False
 
-    create_all_txt(folder_path=path_to_training_images,datatype=datatype,all_txt_filename=all_txt_filename,other_data_folders=other_data_folders,label_folder=label_folder,remove_images_without_label=remove_images_without_label)
+    create_all_txt(folder_path=path_to_training_images,datatype=datatype,all_txt_filename=all_txt_filename,other_data_folders=other_data_folders,label_folder=label_folder,remove_images_without_label=remove_images_without_label,text_file_listing_images_to_consider=text_file_listing_images_to_consider)
     #we use a fixed validation set in order to easier be able to compare results between runs
     if not use_fixed_validation_set:
         create_valid_txt(all_txt_filename=all_txt_filename,valid_txt_filename=valid_txt_filename,pick_every=nr_of_images_between_validation_samples)
