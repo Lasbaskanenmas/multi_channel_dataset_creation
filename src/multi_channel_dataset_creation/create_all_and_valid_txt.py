@@ -8,7 +8,7 @@ import create_train_txt
 import time
 import shutil
 import overlap
-
+import random
 
 
 
@@ -129,7 +129,8 @@ def create_valid_txt(all_txt_filename,valid_txt_filename,pick_every):
             print("first elements in valid_list : " + str(valid_list[0]))
             print("printed the valid filenames to the file : " + valid_txt_filename)
 
-def remove_overlap_from_all_txt(path_to_all_txt,path_to_valid_txt,folder_path):
+
+def remove_overlap_from_all_txt(path_to_all_txt,path_to_valid_txt,folder_path,images_must_be_crops_of_these_images_path):
     """
     create a all_without_overlap.txt file based on all_including_overlap.txt.txt and valid.txt
     files present in valid.txt should also be present in all.txt
@@ -155,8 +156,20 @@ def remove_overlap_from_all_txt(path_to_all_txt,path_to_valid_txt,folder_path):
 
     with open(path_to_all_including_overlap, "r") as all_files:
         all_lines = [line.strip() for line in all_files.readlines()]
+        random.shuffle(all_lines)
     with open(path_to_valid_txt, "r") as valid_file:
         valid_lines = [line.strip() for line in valid_file.readlines()]
+
+    if images_must_be_crops_of_these_images_path:
+        #if we have .txt file that lists all large unsplitted .tif files that the crops must come from.
+        #such a list can be created by listng all large files that intersect with the .shp
+        with open(images_must_be_crops_of_these_images_path, 'r') as file:
+            # Read all lines into a list, stripping any trailing newline characters
+            large_tiff_files = [line.strip() for line in file]
+            #remove the .tif in order to get the part of the filename that also occurs in the crop
+            #also remove the parent folders
+
+            large_tiff_files =[large_tiff_file.strip(".tif").split("/")[-1] for large_tiff_file in large_tiff_files]
 
     # for all files in the dataset (all.txt)
     nr_of_files = len(all_lines)
@@ -164,20 +177,36 @@ def remove_overlap_from_all_txt(path_to_all_txt,path_to_valid_txt,folder_path):
     for filename in all_lines:
         found_file = False
         found_overlapping_file = False
-        # compare it to each file in valid.txt
-        for validset_filename in valid_lines:
+        search_for_overlap = True
 
-            # file in all.txt is present in valid.txt and should therfore not be present in train.txt
-            if validset_filename in filename:
-                found_file = True
-                break
+        if images_must_be_crops_of_these_images_path:
+            #e.g: remove the "_7000_2880.tif" part of "O2021_82_24_1_0020_00004289_7000_2880.tif"
+            # if the trainingset set file is a croped version of any of the large tiff images that intersect with the validationset
+            #then we should check for actuall overlaps
 
-            # file in all.txt is overlapping with file in valid.txt and should therfore not be present in train.txt
-            if overlap.geotiff_overlap(str(pathlib.Path(folder_path) / validset_filename),
-                                       str(pathlib.Path(folder_path) / filename)):
-                found_overlapping_file = True
-                images_overlapping_with_images_in_validationset.append(filename)
-                break
+            #input("_".join(filename.split("_")[0:-2]))
+            #input(large_tiff_files[0])
+            if not ("_".join(filename.split("_")[0:-2]) in large_tiff_files):
+                search_for_overlap = False
+                print("dont search for overlap")
+            else:
+                search_for_overlap = True
+                print("search for overlap")
+
+        if search_for_overlap:
+            # compare it to each file in valid.txt
+            for validset_filename in valid_lines:
+                # file in all.txt is present in valid.txt and should therfore not be present in train.txt
+                if validset_filename in filename:
+                    found_file = True
+                    break
+
+                # file in all.txt is overlapping with file in valid.txt and should therfore not be present in train.txt
+                if overlap.geotiff_overlap(str(pathlib.Path(folder_path) / validset_filename),
+                                           str(pathlib.Path(folder_path) / filename)):
+                    found_overlapping_file = True
+                    images_overlapping_with_images_in_validationset.append(filename)
+                    break
 
         if (not found_file) and (not found_overlapping_file):
             train_files.append(filename)
@@ -203,14 +232,17 @@ def remove_overlap_from_all_txt(path_to_all_txt,path_to_valid_txt,folder_path):
         (time.time() - create_all_without_overlap_txt_start) / 60) + ", minutes")
     return path_to_all_txt
 
-def create_all_and_valid(all_txt_filename,valid_txt_filename,path_to_training_images,datatype,nr_of_images_between_validation_samples,other_data_folders,label_folder,remove_images_without_label ,remove_overlap,use_fixed_validation_set,text_file_listing_images_to_consider=None):
-    create_all_txt(folder_path=path_to_training_images,datatype=datatype,all_txt_filename=all_txt_filename,other_data_folders=other_data_folders,label_folder=label_folder,remove_images_without_label=remove_images_without_label,text_file_listing_images_to_consider=text_file_listing_images_to_consider)
+def create_all_and_valid(all_txt_filename,valid_txt_filename,path_to_training_images,datatype,nr_of_images_between_validation_samples,other_data_folders,label_folder,remove_images_without_label ,remove_overlap,use_fixed_validation_set,images_must_be_crops_of_these_images_path):
+    if images_must_be_crops_of_these_images_path in ["False","None","false"]:
+        images_must_be_crops_of_these_images_path = False
+
+    create_all_txt(folder_path=path_to_training_images,datatype=datatype,all_txt_filename=all_txt_filename,other_data_folders=other_data_folders,label_folder=label_folder,remove_images_without_label=remove_images_without_label)
     #we use a fixed validation set in order to easier be able to compare results between runs
     if not use_fixed_validation_set:
         create_valid_txt(all_txt_filename=all_txt_filename,valid_txt_filename=valid_txt_filename,pick_every=nr_of_images_between_validation_samples)
     if remove_overlap:
         print("removing the geotifs in "+str(all_txt_filename)+" that partly overlap with those in :"+str(valid_txt_filename))
-        remove_overlap_from_all_txt(path_to_all_txt=all_txt_filename,path_to_valid_txt=valid_txt_filename,folder_path=path_to_training_images)
+        remove_overlap_from_all_txt(path_to_all_txt=all_txt_filename,path_to_valid_txt=valid_txt_filename,folder_path=path_to_training_images,images_must_be_crops_of_these_images_path=images_must_be_crops_of_these_images_path)
     else:
         print(str(all_txt_filename)+ " contains all images")
 if __name__ == "__main__":
@@ -220,8 +252,8 @@ if __name__ == "__main__":
                                     epilog=usage_example,
                                     formatter_class=argparse.RawDescriptionHelpFormatter)
 
-    parser.add_argument("-f", "--Folder_path", help="path to dataset folder e.g path/to/dataset/splitted/rgb",required=True)
-    parser.add_argument("-l", "--label_folder", help="path to labelfolder .eg path/to/dataset/labels/splitted_labels", required=True)
+    parser.add_argument("-f", "--Folder_path", help="path to dataset folder",required=True)
+    parser.add_argument("-l", "--label_folder", help="path to labelfolder", required=True)
 
     parser.add_argument("-a", "--All_filename", help="all.txt filename .eg 'esbjerg++_all.txt'  -> esbjer++_all.txt and 'esbjerg++_all.xlsx'",required=True)
     parser.add_argument("-v", "--Valid_filename", help=".eg -v valid.txt",required=True)
@@ -233,31 +265,20 @@ if __name__ == "__main__":
                         help="use this if you want to use an existing text file as valid.txt instead of creating one dynamically")
     parser.add_argument("--remove_overlap", action='store_true',
                         help="use this if you want to remove images  from all.txt and train.txt that partly overlap with images in valid.txt")
+    #quickly filter away all images that not are crops of the images listed in this txt file
+    parser.add_argument('--images_must_be_crops_of_these_images_path', help='Path to a .txt file listing all unsplitted images that overlap with the .shp file. only images that are crops of these images can overlap with the .shp file')
 
     parser.add_argument("--text_file_listing_images_to_consider", default = None,
                         help="e.g subset_all.txt, use this if you want to use a txt file listing images to consider instead of listing the files that exists in one of the inputdata folders")
+
+
+
+
 
 
     
     
     args = parser.parse_args()
 
-    create_all_and_valid(all_txt_filename =args.All_filename,valid_txt_filename=args.Valid_filename,path_to_training_images=args.Folder_path,datatype=args.Datatype,nr_of_images_between_validation_samples=args.nr_of_images_between_validation_samples,other_data_folders=[pathlib.Path(folder_path) for folder_path in args.other_data_folders],remove_images_without_label=args.remove_images_without_label,use_fixed_validation_set=args.use_fixed_validation_set,label_folder =args.label_folder,remove_overlap=args.remove_overlap,text_file_listing_images_to_consider=args.text_file_listing_images_to_consider)
+    create_all_and_valid(all_txt_filename =args.All_filename,valid_txt_filename=args.Valid_filename,path_to_training_images=args.Folder_path,datatype=args.Datatype,nr_of_images_between_validation_samples=args.nr_of_images_between_validation_samples,other_data_folders=[pathlib.Path(folder_path) for folder_path in args.other_data_folders],remove_images_without_label=args.remove_images_without_label,use_fixed_validation_set=args.use_fixed_validation_set,label_folder =args.label_folder,remove_overlap=args.remove_overlap,images_must_be_crops_of_these_images_path=args.images_must_be_crops_of_these_images_path,text_file_listing_images_to_consider=args.text_file_listing_images_to_consider)
 
-
-    #create_all_txt(folder_path=args.Folder_path,datatype=args.Datatype,all_txt_filename=args.All_filename,allowed_blocks=args.Allowed_blocks)
-    
-
-
-
-
-
-    #create_all_txt_with_images_with_least_background(folder_path=args.Folder_path,datatype=args.Datatype,all_filename=args.All_filename,allowed_blocks=args.Allowed_blocks,max_nr_of_images=args.Max_nr_of_images,label_folder_name=args.Labelsfoldername)
-
-    """
-    path_to_training_images = r'C:\mnt\trainingdata\rooftop_500p\images\\'
-    all_txt_filename = "./all.txt"
-    valid_txt_filename = "./valid.txt"
-    allowed_blocks= ["83_25","83_26"]
-    
-    """

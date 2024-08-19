@@ -14,6 +14,9 @@ def main(config):
     all_txt_filename =ini_parser[section]["all_txt_filename"]
     valid_txt_filename =ini_parser[section]["valid_txt_filename"]
 
+    #this can safely be set to False since it only is a speed optimization
+    images_must_be_crops_of_these_images_path = ini_parser[section]["images_must_be_crops_of_these_images_path"]
+
     data_path = ini_parser[section]["data_folder"]
     splitted_data_parent_folder =pathlib.Path(ini_parser[section]["splitted_data_parent_folder"])
 
@@ -34,7 +37,7 @@ def main(config):
     print(path_to_images)
 
 
-    create_all_and_valid_txt.create_all_and_valid(all_txt_filename =all_txt_filename,valid_txt_filename=valid_txt_filename,path_to_training_images=path_to_images,datatype=datatype,nr_of_images_between_validation_samples=nr_of_images_between_validation_samples,other_data_folders=other_data_folders,label_folder = pathlib.Path(ini_parser[section]["splitted_mask_folder"]),remove_overlap =(ini_parser[section]["remove_images_from_all_that_overlap_with_validationset"] in ["True","true"]) ,remove_images_without_label =(ini_parser[section]["remove_images_without_label"] in ["True","true"]),use_fixed_validation_set =(ini_parser[section]["use_fixed_validation_set"] in ["True","true"]))
+    create_all_and_valid_txt.create_all_and_valid(all_txt_filename =all_txt_filename,valid_txt_filename=valid_txt_filename,path_to_training_images=path_to_images,datatype=datatype,nr_of_images_between_validation_samples=nr_of_images_between_validation_samples,other_data_folders=other_data_folders,label_folder = pathlib.Path(ini_parser[section]["splitted_mask_folder"]),remove_overlap =(ini_parser[section]["remove_images_from_all_that_overlap_with_validationset"] in ["True","true"]) ,remove_images_without_label =(ini_parser[section]["remove_images_without_label"] in ["True","true"]),use_fixed_validation_set =(ini_parser[section]["use_fixed_validation_set"] in ["True","true"]),images_must_be_crops_of_these_images_path=images_must_be_crops_of_these_images_path)
     print("creating train.txt by removing all images in valid.txt from all.txt")
 
     create_train_txt.create_train_txt(path_to_all_txt=all_txt_filename,path_to_valid_txt=valid_txt_filename,path_to_all_images=path_to_images,path_to_valid_images=path_to_images,name_prefix="")
