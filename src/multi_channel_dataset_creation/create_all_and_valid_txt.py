@@ -221,6 +221,10 @@ def remove_overlap_from_all_txt(path_to_all_txt,path_to_valid_txt,folder_path,im
     print("found : " + str(len(
         images_overlapping_with_images_in_validationset)) + " files that not were present in valid.txt but overlapped with files in valid.txt")
 
+    # write the files with overlap with valid.txt to "tmp_debug_overlapping_files.txt in same folder as all.txt in order to be able to check them manually"
+    with open(pathlib.Path(path_to_all_txt).parent/"tmp_debug_overlapping_files.txt", "w") as overlap_file:
+        overlap_file.write.write("\n".join(images_overlapping_with_images_in_validationset))
+
 
     # write the files without overlap with valid.txt and the files in valid.txt to path_to_all_wihout_overlap
     with open(path_to_all_txt, "w") as no_overlap_file:
