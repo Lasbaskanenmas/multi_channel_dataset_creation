@@ -110,6 +110,15 @@ def process_geotiff(gdf, geotiff_path, output_geotiff_path, value_map,unknown_bo
                 value_mask = geometry_mask([geom for geom in value_gdf.geometry], transform=transform, invert=True, out_shape=out_shape)
                 output_array[value_mask] = 0
 
+            # if there are alternative labels these override everything else!
+            # this should overwrite the 0 values except at the boarder areas
+            for value, int_value in value_map.items():
+                value_gdf = gdf[gdf['Alternativ tagklasse (Manuelt verificeret)'] == value]
+
+                if not value_gdf.empty:
+                    value_mask = geometry_mask([geom.buffer(-unknown_boarder_size/2) for geom in value_gdf.geometry], transform=transform, invert=True, out_shape=out_shape)
+                    output_array[value_mask] = int_value
+
 
 
 

@@ -18,8 +18,8 @@ def copy_files_to_folder(text_file,origin_folder,destination_folder,new_image_fo
     os.makedirs(destination_folder, exist_ok = True)
     with open(text_file) as f:
         lines= f.readlines()
-
-        files = [origin_folder/line.rstrip() for line in lines if os.path.isfile(origin_folder/line.rstrip())]
+        #in order to make sure we only have the name of the file and not a complete filepath ,we do: pathlib.Path(line.rstrip()).name 
+        files = [origin_folder/pathlib.Path(line.rstrip()).name for line in lines if os.path.isfile(origin_folder/line.rstrip())]
     print("copying the images noted in " +str(text_file)+ " from :"+str(origin_folder) +" to "+str(destination_folder) +"...")
     for file in files:
         if new_image_format:
@@ -27,7 +27,7 @@ def copy_files_to_folder(text_file,origin_folder,destination_folder,new_image_fo
             im.save(destination_folder/file.with_suffix(new_image_format).name)
         else:
             # Copy the file
-            shutil.copy(file, destination_folder)
+            shutil.copyfile(file, destination_folder/file.name)
 
     print("done copying the images noted in " +str(text_file)+ " from :"+str(origin_folder) +" to "+str(destination_folder) )
 
@@ -45,8 +45,8 @@ if __name__ == "__main__":
 
     parser.add_argument("-t", "--text_file", help="path/to/text_file.txt ",required=True, type=pathlib.Path)
 
-    parser.add_argument("-i", "--folder", help="path/to/folder  e.g path/to/images",required=True,type=pathlib.Path)
-    parser.add_argument("-i", "--new_folder", help="path/to/folder  e.g path/to/new_folder",required=True,type=pathlib.Path)
+    parser.add_argument("-f", "--folder", help="path/to/folder  e.g path/to/images",required=True,type=pathlib.Path)
+    parser.add_argument("-n", "--new_folder", help="path/to/folder  e.g path/to/new_folder",required=True,type=pathlib.Path)
 
     parser.add_argument("--New_Image_format", help="e.g .jpg",default=None,required=False)
 
@@ -54,4 +54,4 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     print("copying images")
-    copy_files_to_folder(text_file=args.Valid_text_file,origin_folder=args.ImageFolder,destination_folder= args.ImageFolder.parent/args.New_image_folder/args.Valid_folder_name,new_image_format =args.New_Image_format )
+    copy_files_to_folder(text_file=args.text_file,origin_folder=args.folder,destination_folder= args.new_folder,new_image_format =args.New_Image_format )
