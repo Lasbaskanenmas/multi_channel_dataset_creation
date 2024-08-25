@@ -135,7 +135,7 @@ def process_geotiff(gdf, geotiff_path, output_geotiff_path, value_map,unknown_bo
         return False
 
 
-def process_all_geotiffs(geopackage_path, input_folder, output_folder, value_map,unknown_boarder_size):
+def process_all_geotiffs(geopackage_path, input_folder, output_folder, value_map,unknown_boarder_size,input_files):
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
 
@@ -163,8 +163,13 @@ def process_all_geotiffs(geopackage_path, input_folder, output_folder, value_map
     print("###############################################################################")
     print("###############################################################################")
     print("")
+    if input_files:
+        print("processing all files listed in the input txt file..")
+    else:
+        print("processing all files in the input folder")
+        input_files = os.listdir(input_folder)
 
-    for file_name in os.listdir(input_folder):
+    for file_name in input_files:
         if file_name.endswith('.tiff') or file_name.endswith('.tif'):
             input_path = os.path.join(input_folder, file_name)
             output_path = os.path.join(output_folder, file_name)
@@ -195,6 +200,7 @@ def main():
     parser.add_argument('--create_new_mapping', action='store_true', help='Whether to create a new mapping from the GeoPackage')
     parser.add_argument('--path_to_mapping', type=str, required=True, help='Path to save or load the mapping file')
     parser.add_argument('--unknown_boarder_size', type=float, default=0.1, help='how large baorder of "unkown"==0 values should there be around the areas defined by polygons? set to 0 to not have any boarder at all. 0.1 is interpreted as 0.1 meter of boarder ')
+    parser.add_argument('--input_files', type=str, default=False, help='optional path to txt file withy filenames instead of using all files in folder')
 
 
     args = parser.parse_args()
@@ -206,7 +212,7 @@ def main():
     else:
         value_map = load_mapping(args.path_to_mapping)
 
-    process_all_geotiffs(args.geopackage, args.input_folder, args.output_folder, value_map,args.unknown_boarder_size)
+    process_all_geotiffs(args.geopackage, args.input_folder, args.output_folder, value_map,args.unknown_boarder_size,input_files=args.input_files)
 
 if __name__ == '__main__':
     main()
