@@ -36,7 +36,7 @@ def create_txt_file_with_files_overlapping_with_shp_file(shape_file,folder,outpu
     checked_files=0
     for filepath in tiff_files:
         if overlap.shp_geotif_overlap(shp_path=shape_file,tiff_path=filepath):
-             overlapping_tif_files.append(str(filepath))
+             overlapping_tif_files.append(filepath.name)
         checked_files+=1
         print(f"\rPercent ready: {100*(checked_files/nr_of_files)}%", end="")
     print("saving the filenames of all overlapping geotiffs to : "+str(output_txt)+ " ...")
