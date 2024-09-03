@@ -7,7 +7,10 @@ from osgeo import ogr
 
 
 def main(inputfolder, outputfolder, replacestring, newstring, only_consider_files_with_matching_names, shapefile_path):
-    files = os.listdir(inputfolder)
+    if pathlib.Path.exists(inputfolder):
+        files = os.listdir(inputfolder)
+    else:
+        files =[]
     for (index, file) in enumerate(files):
         print("working on file :" + str(index) + " out of :" + str(len(files)))
         input_path = pathlib.Path(inputfolder) / pathlib.Path(file)
