@@ -25,6 +25,9 @@ def main(args):
     ini_parser = configparser.ConfigParser()
     ini_parser.read(config)
     section = "SETTINGS"
+    print(config)
+    print(ini_parser[section])
+    print(ini_parser[section]["datatypes"])
 
     for datatype in json.loads(ini_parser[section]["datatypes"]):
         print("datatype:"+str(datatype))

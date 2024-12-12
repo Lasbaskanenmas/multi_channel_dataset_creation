@@ -64,7 +64,7 @@ def create_train_txt(path_to_all_txt,path_to_valid_txt,path_to_all_images,path_t
 
     print() #go to a new line since the last print did not do this
 
-    print("creating train.txt took: "+str((time.time()-create_train_txt_start)/60) + ", minutes")
+    print("creating "+str(path_to_train_txt)+" took: "+str((time.time()-create_train_txt_start)/60) + ", minutes")
 
     #write the lines to train.txt
     with open(path_to_train_txt,"w") as train_file:

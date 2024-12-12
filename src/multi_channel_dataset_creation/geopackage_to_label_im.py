@@ -214,11 +214,11 @@ def main():
     example_usage = 'python geopackage_to_label_im.py --geopackage "F:\SDFI\DATA\MachineLearning\bygningsudpegning\labels\GeoDanmark -AI projekt\GeoDanmark -AI projekt\AI_bygning_labels.gpkg" --input_folder \\prod.sitad.dk\dfs\CU2314\F-DREV\SDFI\DATA\MachineLearning\bygningsudpegning\data\machine_learning_ready_data\rgb --create_new_mapping --path_to_mapping \\prod.sitad.dk\dfs\CU2314\F-DREV\SDFI\DATA\MachineLearning\bygningsudpegning\data\machine_learning_ready_data\mapping2.txt --unknown_boarder_size 0.1 --output_folder \\prod.sitad.dk\dfs\CU2314\F-DREV\SDFI\DATA\MachineLearning\bygningsudpegning\labels\large_labels'
     print("example usage: "+str(example_usage))
     parser = argparse.ArgumentParser(description='Process GeoTIFF files based on GeoPackage data.')
-    parser.add_argument('--geopackage', type=str, required=True, help='Path to the GeoPackage file')
+    parser.add_argument('--geopackage', type=str, required=False,default ='/mnt/T/mnt/trainingdata/bygningsudpegning/iter_4/Samle_data_21-08-24/AI_bygning_labels_handselected_valid.gpkg', help='Path to the GeoPackage file')
     parser.add_argument('--input_folder', type=str, required=True, help='Path to the folder containing input GeoTIFF files')
     parser.add_argument('--output_folder', type=str, required=True, help='Path to the folder to save output GeoTIFF files')
     parser.add_argument('--create_new_mapping', action='store_true', help='Whether to create a new mapping from the GeoPackage')
-    parser.add_argument('--path_to_mapping', type=str, required=True, help='Path to save or load the mapping file')
+    parser.add_argument('--path_to_mapping', type=str, required = False,default ='/mnt/T/mnt/trainingdata/bygningsudpegning/iter_4/roof_no_roof_mapping.txt', help='Path to save or load the mapping file')
     parser.add_argument('--unknown_boarder_size', type=float, default=0.1, help='how large baorder of "unkown"==0 values should there be around the areas defined by polygons? set to 0 to not have any boarder at all. 0.1 is interpreted as 0.1 meter of boarder ')
     parser.add_argument('--input_files', type=str, default=False, help='optional path to txt file withy filenames instead of using all files in folder')
 

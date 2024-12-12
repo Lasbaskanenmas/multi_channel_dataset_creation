@@ -6,14 +6,54 @@ from osgeo import gdal
 import numpy as np
 from PIL import Image
 import argparse
+import multiprocessing as mp
+import time
 _all__ = ["split"]
 
 _logger = logging.getLogger(__name__)
 
-# Finder nodepunkter for alle bygningspolygonerne i bygnings-laget, samt deres id_lokalid
+
+
+
+
 class Split():
     def __init__(self):
         pass
+    def helper_function(self,pair):
+        start_time = time.time()
+        "a function for making it easier to run the splitfile() function in parralell"
+        (nr_of_files,index,in_path, out_path, filename, tile_size_x, tile_size_y,cutdatatype,kun_ok_pic,ignore_id,overlap) = pair
+        print(f"Processing file : {filename} , nr: {index} , out of: {nr_of_files}")
+        self.splitfile(in_path, out_path, filename, tile_size_x, tile_size_y,cutdatatype,kun_ok_pic=kun_ok_pic,nodata=ignore_id,overlap=overlap)
+        print(f"Done Processing file : {filename} ,took {(time.time()-start_time)/60.0} , minutes ")
+    '''
+    dont use this !!
+    def split(in_path, out_path, tile_size_x, tile_size_y, kun_ok_pic=False, centrer_opklip=False,
+              cutdatatype="oldstyle", srs="EPSG:25832", nodata=255,nr_of_processes=8):
+        """splittgin files with gdal on """+str(nr_of_processes)+""" worker threads in paralell"""
+
+        print("Proceeding: {}".format(in_path))
+        # TODO: check path exist
+        print("Out path  : {}".format(out_path))
+        filelist = self.getfiles(in_path)
+        filelist.sort()
+        print("{} files (all types)".format(len(filelist)))
+
+
+
+        # Create a pool of worker processes
+        print("creating pool of : " +str(int(nr_of_processes))+ " nr of processes")
+        pool = mp.Pool(processes=int(nr_of_processes))
+
+        # Use pool.map to parallelize the loop
+        pool.map(self.helper_function, [(in_path, out_path,filename,tile_size_x, tile_size_y, kun_ok_pic, centrer_opklip,
+                           cutdatatype, srs, nodata) for filename in filelist])
+
+        # Close and join the pool to free up resources
+        pool.close()
+        pool.join()
+    '''
+
 
     def split(self, in_path, out_path, tile_size_x, tile_size_y, kun_ok_pic=False, centrer_opklip=False,
               cutdatatype="oldstyle", srs="EPSG:25832", nodata=255):
@@ -29,7 +69,7 @@ class Split():
             self.splitfile(in_path, out_path, filename, tile_size_x, tile_size_y, kun_ok_pic, centrer_opklip,
                            cutdatatype, srs, nodata)
 
-
+    '''
     def splitdst(self, in_path, out_path, tile_size_x, tile_size_y,cutdatatype,kun_ok_pic=False,ignore_id=0,stop_on_error=True,overlap=0):
         filelist = self.getfiles(in_path)
         filelist.sort()
@@ -46,7 +86,39 @@ class Split():
                 except:
                     failed_files.append(in_path)
         return failed_files
+    '''
 
+
+    def splitdst(self, in_path, out_path, tile_size_x, tile_size_y,cutdatatype,kun_ok_pic=False,ignore_id=0,stop_on_error=True,overlap=0,nr_of_processes=1):
+        filelist = self.getfiles(in_path)
+        nr_of_files = len(filelist)
+        filelist.sort()
+        failed_files = []
+        if nr_of_processes>1:
+
+            # Create a pool of worker processes
+            print("creating pool of : " +str(int(nr_of_processes))+ " nr of processes")
+            pool = mp.Pool(processes=int(nr_of_processes))
+
+            # Use pool.map to parallelize the loop
+            pool.map(self.helper_function ,[[nr_of_files,index,in_path, out_path, filename, tile_size_x, tile_size_y,cutdatatype,kun_ok_pic,ignore_id,overlap] for (index,filename) in enumerate(filelist)],1) #setting chunksizze to 1 to keep the order intact
+
+            # Close and join the pool to free up resources
+            pool.close()
+            pool.join()
+        else:
+            for (index,filename) in enumerate(filelist):
+                print("working on image nr: "+str(index) + " out of : "+str(len(filelist)))
+
+                if stop_on_error:
+                    self.splitfile(in_path, out_path, filename, tile_size_x, tile_size_y,cutdatatype,kun_ok_pic=kun_ok_pic,nodata=ignore_id,overlap=overlap)
+                else:
+                    try:
+                        self.splitfile(in_path, out_path, filename, tile_size_x, tile_size_y, cutdatatype,
+                                   kun_ok_pic=kun_ok_pic, nodata=ignore_id,overlap=overlap)
+                    except:
+                        failed_files.append(in_path)
+        return failed_files
 
 
     def splitfile(self, in_path, out_path, filename, tile_size_x, tile_size_y,cutdatatype, kun_ok_pic=False, centrer_opklip=False,srs="EPSG:25832", nodata=255,overlap =0,debug=False):
