@@ -60,15 +60,20 @@ def process_images(folder, divide_by):
         except Exception as e:
             print(f"Error processing {filename}: {e}")
 
+
+
+        avg_min_val = sum_min_vals / image_count
+        avg_max_val = sum_max_vals / image_count
+        avg_mean = sum_means / image_count
+        avg_std = sum_stds / image_count
+        print(f"Average Min Value: {avg_min_val:.2f}")
+        print(f"Average Max Value: {avg_max_val:.2f}")
+        print(f"Average Mean: {avg_mean:.2f}")
+        print(f"Average Std: {avg_std:.2f}")
     # Calculate and display final statistics
     if image_count == 0:
         print("No valid images found in the folder.")
         return
-
-    avg_min_val = sum_min_vals / image_count
-    avg_max_val = sum_max_vals / image_count
-    avg_mean = sum_means / image_count
-    avg_std = sum_stds / image_count
 
     print("\n--- Final Statistics ---")
     print(f"Maximum of Max Values: {max_max_val:.2f}")
