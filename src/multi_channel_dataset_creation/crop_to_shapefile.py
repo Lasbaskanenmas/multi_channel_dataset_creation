@@ -6,7 +6,7 @@ from osgeo import ogr
 import sys
 import time
 
-def main(inputfolder, outputfolder,shapefile_path, replacestring="", newstring="", only_consider_files_with_matching_names=False):
+def main(inputfolder, outputfolder,shapefile_path,extra_boarder=50, replacestring="", newstring="", only_consider_files_with_matching_names=False):
     if pathlib.Path(inputfolder).exists():
         files = os.listdir(inputfolder)
     else:
@@ -19,13 +19,14 @@ def main(inputfolder, outputfolder,shapefile_path, replacestring="", newstring="
             pass
         else:
             if True:#try:
-                main_crop_geotiff(geotiff_path=input_path, shapefile_path=shapefile_path, output_path=output_path)
+                main_crop_geotiff(geotiff_path=input_path, shapefile_path=shapefile_path, output_path=output_path,extra_boarder=extra_boarder)
             else:#except:
                 print("##############################################failed to crop iamge:"+str(input_path))
 
 
 import rasterio
 from rasterio.windows import from_bounds
+
 
 
 def crop_geotiff(input_path, output_path, bounding_box):
@@ -83,7 +84,7 @@ def crop_geotiff(input_path, output_path, bounding_box):
         with rasterio.open(output_path, 'w', **meta) as dst:
             dst.write(data)
 """
-def main_crop_geotiff(geotiff_path, shapefile_path, output_path):
+def main_crop_geotiff(geotiff_path, shapefile_path, output_path,extra_boarder):
     # Open the shapefile to get the bounding box
     shape_ds = ogr.Open(shapefile_path)
     layer = shape_ds.GetLayer()
@@ -95,10 +96,10 @@ def main_crop_geotiff(geotiff_path, shapefile_path, output_path):
 
         # Add a 50-pixel border to bounds (good to have a little information on whats around the pixel, and we also remove the 20 outmost pr$
 
-        xmin -= 50
-        ymin -= 50
-        xmax += 50
-        ymax += 50
+        xmin -= extra_boarder
+        ymin -= extra_boarder
+        xmax += extra_boarder
+        ymax += extra_boarder
 
         # adjust the bounds to not be utside of the original image
 
@@ -146,13 +147,14 @@ if __name__ == "__main__":
     parser.add_argument("--input", required=True, help="Path to the folder or GeoTIFF file.")
     parser.add_argument("--shapefile", required=True, help="Path to the shapefile.")
     parser.add_argument("--output", required=True, help="Path to output folder or the new GeoTIFF file")
+    parser.add_argument("--extra_boarder",default = 50,type=int)
 
     args = parser.parse_args()
 
     if pathlib.Path(args.input).is_dir() and  pathlib.Path(args.output).is_dir():
-        main(inputfolder=args.input, outputfolder=args.output, replacestring="", newstring="", only_consider_files_with_matching_names=False, shapefile_path=args.shapefile)
+        main(inputfolder=args.input, outputfolder=args.output, replacestring="", newstring="", only_consider_files_with_matching_names=False, shapefile_path=args.shapefile,extra_boarder = args.extra_boarder)
     elif pathlib.Path(args.input).is_file() and  pathlib.Path(args.output).is_file(): 
-        main_crop_geotiff(args.input, args.shapefile, args.output)
+        main_crop_geotiff(args.input, args.shapefile, args.output,args.extra_boarder)
     else:
         sys.exit("input and output paths shoudl point to two folders OR two files")
 
