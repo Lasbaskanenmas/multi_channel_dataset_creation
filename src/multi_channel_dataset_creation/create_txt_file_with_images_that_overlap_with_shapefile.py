@@ -4,11 +4,62 @@ import sys
 import os
 from multi_channel_dataset_creation import overlap
 import pathlib
+import geopandas as gpd
+from rasterio.features import bounds
+from shapely.geometry import box
+from shapely.ops import unary_union
+import rasterio
+def get_extent_from_shapefile(shapefile):
+    """Get the bounding box extent of a shapefile."""
+    gdf = gpd.read_file(shapefile)
+    return gdf.total_bounds  # [minx, miny, maxx, maxy]
+
+def calculate_distance_to_extent_center(extent, geotiff_path):
+    """Calculate the distance of a GeoTIFF's center to the center of the extent."""
+    center_x = (extent[0] + extent[2]) / 2
+    center_y = (extent[1] + extent[3]) / 2
+    extent_center = (center_x, center_y)
+
+    with rasterio.open(geotiff_path) as src:
+        geotiff_center = ((src.bounds.left + src.bounds.right) / 2,
+                          (src.bounds.top + src.bounds.bottom) / 2)
+        return ((extent_center[0] - geotiff_center[0]) ** 2 +
+                (extent_center[1] - geotiff_center[1]) ** 2) ** 0.5
+def prune(extent, geotiffs):
+    """
+    Iteratively prune the list of GeoTIFFs. removes geotifs untill the merged extent not covers the extetn anymore .
+    @arg extent crated with  gpd.read_file(shapefile).total_bounds  # [minx, miny, maxx, maxy]
+    @arg geotifs a list with paths to geotiffs
+
+    @return a new list with the pruned list of geotiffs
 
 
-def create_txt_file_with_files_overlapping_with_shp_file(shape_file,folder,output_txt,images_must_be_crops_of_these_images_path):
-    print("Listing all .tif files...")
+    """
+    # Sort GeoTIFFs by distance to the center of the extent
+    geotiffs = sorted(geotiffs, key=lambda path: calculate_distance_to_extent_center(extent, path), reverse=True)
+
+    index = 0  # Start with the first GeoTIFF
+    while index < len(geotiffs):
+        # Create a new list by excluding the current GeoTIFF
+        remaining_geotiffs = geotiffs[:index] + geotiffs[index+1:]
+        # Merge remaining GeoTIFF extents
+        merged_extent = unary_union([box(*rasterio.open(gt).bounds) for gt in remaining_geotiffs])
+
+        # Check if the shapefile extent fits within the merged polygon
+        if box(*extent).within(merged_extent):
+            # Update the list to the pruned version and reset index to restart
+            geotiffs = remaining_geotiffs
+            index = 0  # Restart the pruning process
+        else:
+            # Move to the next GeoTIFF
+            index += 1
+
+    return geotiffs
+
+def create_txt_file_with_files_overlapping_with_shp_file(shape_file,folder,output_txt,images_must_be_crops_of_these_images_path,prune_to_fewer_images):
+    print("Listing all .tif files in "+str(folder)+"...")
     tiff_files = [str(pathlib.Path(folder)/f) for f in os.listdir(folder) if f.endswith('.tif')]
+
     if images_must_be_crops_of_these_images_path:
         print("filtering away files that not are crops of the files listed in 'images_must_be_crops_of_these_images_path'")
         with open(images_must_be_crops_of_these_images_path, 'r') as file:
@@ -36,14 +87,18 @@ def create_txt_file_with_files_overlapping_with_shp_file(shape_file,folder,outpu
     checked_files=0
     for filepath in tiff_files:
         if overlap.shp_geotif_overlap(shp_path=shape_file,tiff_path=filepath):
-             overlapping_tif_files.append(filepath.split("/")[-1])
+             overlapping_tif_files.append(filepath)
         checked_files+=1
         print(f"\rPercent ready: {100*(checked_files/nr_of_files)}%", end="")
+    if prune_to_fewer_images:
+        print("pruning")
+        extent= get_extent_from_shapefile(shape_file)
+        overlapping_tif_files = prune(extent= extent, geotiffs=overlapping_tif_files)
+    overlapping_tif_files = [file.split("/")[-1] for file in overlapping_tif_files]
     print("saving the filenames of all overlapping geotiffs to : "+str(output_txt)+ " ...")
     pathlib.Path(pathlib.Path(output_txt).parent).mkdir(parents=True, exist_ok=True)
     with open(output_txt, 'w') as f:
         f.write('\n'.join(overlapping_tif_files))
-    print("printed the filenames to the file : " + str(output_txt))
 
 
 
