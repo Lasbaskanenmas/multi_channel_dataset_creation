@@ -9,6 +9,7 @@ import time
 def main(inputfolder, outputfolder,shapefile_path,extra_boarder=50, replacestring="", newstring="", only_consider_files_with_matching_names=False):
     if pathlib.Path(inputfolder).exists():
         files = os.listdir(inputfolder)
+        files.sort()
     else:
         files =[]
     for (index, file) in enumerate(files):
@@ -35,9 +36,20 @@ def crop_geotiff(input_path, output_path, bounding_box):
         # Create a window based on the bounding box
         window = from_bounds(bounding_box[0], bounding_box[2], bounding_box[1], bounding_box[3], src.transform)
 
-        # Read the data within the window
-        data = src.read(window=window)
+        if (window.col_off < 0 or window.row_off < 0 or
+            window.col_off + window.width > src.width or
+            window.row_off + window.height > src.height):
+            input("Window is out of bounds for the input raster., now making sure that the outut file is deletet (if input and outputfile is the same we need to delete it , otherwise we could keep the original)")
+            pathlib.Path(output_path).unlink(missing_ok=True)
 
+        try:
+            # Read the data within the window
+            data = src.read(window=window)
+        except:
+            print("failed to crop :"+str(input_path))
+            print("making sure the output file is deleted in case input and output is the same")
+            pathlib.Path(output_path).unlink(missing_ok=True)
+            return
         # Update the transform for the new window
         window_transform = src.window_transform(window)
 
@@ -132,10 +144,12 @@ def main_crop_geotiff(geotiff_path, shapefile_path, output_path,extra_boarder):
     print("min([xmax_pixel-xmin_pixel, ymin_pixel- ymax_pixel]):"+str(min([xmax_pixel-xmin_pixel, ymin_pixel- ymax_pixel])))
 
     if min([xmin_pixel, xmax_pixel, ymin_pixel, ymax_pixel])<0:
-        pass
+        print("output image would have become negative size")
+        pathlib.Path(output_path).unlink(missing_ok=True)
+        
     elif min([xmax_pixel-xmin_pixel, ymin_pixel- ymax_pixel]) <1010:
         print("images smaller than 1010 are skipped, a better solution would be to enlarge them to be 1010")
-        pass
+        pathlib.Path(output_path).unlink(missing_ok=True)
     else:
         # Crop the GeoTIFF using the adjusted bounding box
         crop_geotiff(geotiff_path, output_path, [xmin_adj, xmax_adj, ymin_adj, ymax_adj])
