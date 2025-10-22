@@ -167,8 +167,6 @@ if __name__ == "__main__":
 
     if pathlib.Path(args.input).is_dir() and  pathlib.Path(args.output).is_dir():
         main(inputfolder=args.input, outputfolder=args.output, replacestring="", newstring="", only_consider_files_with_matching_names=False, shapefile_path=args.shapefile,extra_boarder = args.extra_boarder)
-    elif pathlib.Path(args.input).is_file() and  pathlib.Path(args.output).is_file(): 
-        main_crop_geotiff(args.input, args.shapefile, args.output,args.extra_boarder)
     else:
-        sys.exit("input and output paths shoudl point to two folders OR two files")
+        main_crop_geotiff(args.input, args.shapefile, args.output,args.extra_boarder)
 

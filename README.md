@@ -1,11 +1,7 @@
 # Creating a dataset for semantic segmentation based on multi-channel images
 Combining images and lidar data from different sources into a single multi-channel image dataset.
-Also handle conversion of labels stored as Arcgis plygon featureclass into geotiff label-images. 
-The finnished dataset is meant to be used for training and inference with http://sdfe-git/ITU/ML/fastai2 or https://github.com/rasmuspjohansson/lightning
-## Prerequsites are:
-Software
-- Conda-environment from ArcGIS pro installation (at the time of writing this only works on windows OS)
-- You can alternatively create a fresh conda environment or use the one that comes with http://sdfe-git/ITU/ML/fastai2 but the software will then not be able to create labels. It can however still preprocess the data so they are ready for ML-inference.
+Also handle conversion of labels stored as geopackage files plygon featureclass into geotiff label-images. 
+The finnished dataset is meant to be used for training and inference with  https://github.com/SDFIdk/ML_sdfi_fastai2 
  
 
 Data
@@ -45,7 +41,7 @@ Images in original_data will be renamed and moved to the rgb, cir, OrtoRGB, Orto
 If no images exists in original_data folder, images in  rgb, cir, OrtoRGB, OrtoCIR, DSM and DTM folders will be used instead.
 
 Labels
-- An ArcGIS project with the different areas marked up as polygons in a feature class
+- A geopackage with different areas marked up with polygons
 
 
 
@@ -54,13 +50,9 @@ git clone https://github.com/rasmuspjohansson/multi_channel_dataset_creation.git
 
 cd multi_channel_dataset_creation
 
-conda activate *your_arcgis_pro_environment*
-
-*alternatively create an environment without arcgis (e.g on linux) with * 
-
 conda env create -f environment.yml
 
-conda activate multi-channel-env-without-arcgis
+conda activate multi-channel-env
 
 Install the library in 'editable' mode. Editable mode makes sure that a change in the code also updates the installed version of the code  
 pip install -e .
@@ -74,6 +66,9 @@ python src/multi_channel_dataset_creation/create_dataset.py --dataset_config con
 
 For more help on the usage type
 python src/multi_channel_dataset_creation/create_dataset.py -h
+
+An example on how to create label images from a geopackage is:
+python src/multi_channel_dataset_creation/geopackage_to_label_v2.py --geopackage example_dataset/labels/example_dataset.gpkg --input_folder example_dataset/data/rgb/
 
 
 

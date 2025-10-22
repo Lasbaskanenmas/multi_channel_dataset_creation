@@ -1,4 +1,4 @@
-name: multi-channel-env-without-arcgis
+name: multi-channel-env
 channels:
   - conda-forge
 dependencies:

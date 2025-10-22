@@ -15,7 +15,7 @@ def main(config):
     valid_txt_filename =ini_parser[section]["valid_txt_filename"]
 
     #this can safely be set to False since it only is a speed optimization
-    images_must_be_crops_of_these_images_path = ini_parser[section]["images_must_be_crops_of_these_images_path"]
+    images_must_be_crops_of_these_images_path = ini_parser[section].get("images_must_be_crops_of_these_images_path")
 
     data_path = ini_parser[section]["data_folder"]
     splitted_data_parent_folder =pathlib.Path(ini_parser[section]["splitted_data_parent_folder"])
