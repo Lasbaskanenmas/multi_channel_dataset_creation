@@ -1,14 +1,14 @@
 # Multi-Channel Dataset Creation for Semantic Segmentation
 
-This repository provides tools to create semantic segmentation datasets by combining imagery and LiDAR data from multiple geospatial sources into unified multi-channel image datasets.  
-Use it to split up data and labels into patches. It can also handle division of dataset into train and test/valid subsets while taking geographical overlap into consideration.
-It supports conversion of labeled polygons stored in GeoPackage files into GeoTIFF label images.  
+Use this repository to create semantic segmentation datasets by combining imagery and LiDAR data from multiple geospatial sources into unified multi-channel image datasets.  
+Data and labels are cut into patches and dataset is divided into train and test/valid subsets while taking geographical overlap into consideration.
+Code supports conversion of labeled polygons stored in GeoPackage files into GeoTIFF label images.  
 
 The resulting datasets can be used for training and inference with [ML_sdfi_fastai2](https://github.com/SDFIdk/ML_sdfi_fastai2).
 
 ---
 
-## 📦 Data Sources
+## Data Sources
 
 The dataset combines the following georeferenced layers:
 
@@ -19,7 +19,7 @@ The dataset combines the following georeferenced layers:
 
 ---
 
-## 📂 Example Folder Structure
+## Example Folder Structure
 
 ```
 training_dataset/
@@ -53,14 +53,14 @@ If `original_data` is empty, the tool will use existing images from these subfol
 
 ---
 
-## 🗺️ Labels
+## Labels
 
 Labels should be provided as **GeoPackages** containing polygon features marking different semantic areas.  
 These will be rasterized into GeoTIFF label images during dataset creation.
 
 ---
 
-## ⚙️ Installation
+## Installation
 
 ```bash
 git clone https://github.com/rasmuspjohansson/multi_channel_dataset_creation.git
@@ -75,7 +75,7 @@ pip install -e .
 
 ---
 
-## 🚀 Usage
+## Usage
 
 A small example dataset is included with this repository.  
 You can generate a dataset using the example configuration:
