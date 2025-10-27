@@ -5,30 +5,15 @@ currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentfram
 
 sys.path.insert(0, currentdir)
 
-arcpy_installed= False
-try:
-    import arcpy
-    arcpy_installed = True
-except:
-    print("#########################################################################################################")
-    print("NO arcpy INSTALLED! , This is OK if you dont want to create rasters from polygons (e.g label or house masks/rasters), otherwise you should use a conda environment that is based on the one you get with a windows arcpy installation")
-    print("labels must be created on a windows machine")
-    print("#########################################################################################################")
 
-if arcpy_installed:
-    import create_label_images
-    import create_house_images
-    import update_arcgis_feature_class
-else:
-    print("with no arcpy installed the program can not create raster data (e.g labels or houses) from polygons")
-
+import parse_ini
 import create_patches
 import create_txt_files
 import move_data_to_separate_folders
 import argparse
 import time
 import configparser
-
+import geopackage_to_label_v2
 
 def main(args):
     create_dataset_start_time = time.time()
@@ -38,28 +23,24 @@ def main(args):
         print("#######################################")
         #going from folder/a_name_DSM.tif , folder/a_name_OrtoCIR.tif ... to  DSM/a_name.tif , OrtoCIR/a_name.tif ..
         move_data_to_separate_folders.main(args = args)
-    if (not "update_arcgis_feature_class" in args.skip) and arcpy_installed:
-        print("#######################################")
-        print("update the 'merged_labels' feature class to include the newest data")
-        print("#######################################")
-        update_arcgis_feature_class.main(config=args.dataset_config)
     
 
-    if (not "create_labels" in args.skip) and arcpy_installed:
+    if (not "create_labels" in args.skip):
         print("#######################################")
         print("create_labels")
         print("#######################################")
-        #convert the GIS database to label images of same shape as the 'lod-images'
-        #if there are no label data for the area covered by the image, we don create any label
-        create_label_images.main(config=args.dataset_config)
+        #convert the geopackage polygons to label images of same shape as the 'lod-images'
+        parsed_ini_file = parse_ini.parse(args.dataset_config) # aprse the .ini file 
+        geopackage_to_label_v2.process_label_generation( geopackage = parsed_ini_file["geopackage"],  
+            input_folder=parsed_ini_file["images_that_define_areas_to_create_labels_for"], 
+            output_folder = parsed_ini_file["mask_folder"], 
+            unknown_border_size = 0.1,
+            attribute = parsed_ini_file["attribute"],
+            background_value= parsed_ini_file["background_value"],
+            ignore_value= parsed_ini_file["ignore_id"],
+        )
 
-    if (not "create_houses" in args.skip) and arcpy_installed:
-        print("#######################################")
-        print("create_houses")
-        print("#######################################")
-        #convert the GIS database to images of same shape as the 'lod-images'
-        #if there are no house polygons for the area covered by the image, we still create black images
-        create_house_images.main(config=args.dataset_config)
+
 
 
     print("#######################################")
@@ -83,7 +64,7 @@ def main(args):
     print()
 
 if __name__ == "__main__":
-    usage_example= "python src\multi_channel_dataset_creation\create_dataset.py --dataset_config configs\create_dataset_example_dataset.ini --skip move_data_to_separate_folders update_arcgis_feature_class create_labels create_houses create_patches split_labels create_text_files"
+    usage_example= "python src\multi_channel_dataset_creation\create_dataset.py --dataset_config configs\create_dataset_example_dataset.ini --skip move_data_to_separate_folders create_labels create_houses create_patches split_labels create_text_files"
     # Initialize parser
     parser = argparse.ArgumentParser(
         epilog=usage_example,
@@ -91,6 +72,6 @@ if __name__ == "__main__":
 
     parser.add_argument("--dataset_config",help ="path to config.ini file e.g ..\..\configs\template_create_dataset.ini",required=True)
     #create_dataset.py creates house mask besides the label masks. This is however not strictly nececeary and in order to avoiding adding an extra .gdb file to the repository we skip creation of house masks
-    parser.add_argument("--skip",help ="steps in the process to be skipped: eg update_arcgis_feature_class move_data_to_separate_folders create_houses create_labels create_patches split_labels create_text_files",nargs ='+',default =["create_houses"],required=False)
+    parser.add_argument("--skip",help ="steps in the process to be skipped: move_data_to_separate_folders create_houses create_labels create_patches split_labels create_text_files",nargs ='+',default =["create_houses"],required=False)
     args = parser.parse_args()
     main(args)
