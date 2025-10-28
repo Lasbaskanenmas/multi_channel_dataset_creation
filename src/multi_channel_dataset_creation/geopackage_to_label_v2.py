@@ -1,4 +1,5 @@
 import os
+import time
 import glob
 import logging
 from pathlib import Path
@@ -32,12 +33,20 @@ def process_label_generation(
     use_constant_class = attribute is None
     class_attribute_name = attribute
 
-    output_path = Path(output_folder)
-    output_path.mkdir(parents=True, exist_ok=True)
 
-    logging.info(f"Starting label generation. Output folder: {output_path}")
-    logging.info(f"Loading GeoPackage: {geopackage}")
-    gdf = gpd.read_file(geopackage)
+    logging.info(f"Starting label generation. Output folder: {output_folder}")
+
+    if isinstance(geopackage, str):
+        print("loading geopackage..")
+        reading_geopkg_start = time.time()
+        gdf = gpd.read_file(geopackage)
+        print("reading geopackage took: "+str(   (time.time()-reading_geopkg_start)/60 )+ " minutes")
+    else:
+        print("creating label image with preloaded geopackage")
+        gdf = geopackage
+
+
+
 
     if use_constant_class:
         logging.info(f"No attribute provided. All polygons will be treated as class {value_used_for_all_polygons}.")
@@ -62,9 +71,16 @@ def process_label_generation(
             raise e
 
     gdf["area"] = gdf.geometry.area
+    if Path(input_folder).suffix and Path(output_folder).suffix:
+        # if input_folder and output_folder is a file (paths have sufixes ) we will work on this single image
+        raster_files =[input_folder]
+    else:
+        # otherwise we find all the files in the input folder and make sure the ourput folders exists
+        output_path = Path(output_folder)
+        output_path.mkdir(parents=True, exist_ok=True)
 
-    raster_files = glob.glob(os.path.join(input_folder, "**", "*.tif"), recursive=True)
-    raster_files.extend(glob.glob(os.path.join(input_folder, "**", "*.tiff"), recursive=True))
+        raster_files = glob.glob(os.path.join(input_folder, "**", "*.tif"), recursive=True)
+        raster_files.extend(glob.glob(os.path.join(input_folder, "**", "*.tiff"), recursive=True))
 
     if not raster_files:
         logging.info(f"No GeoTIFF files found in the input folder: {input_folder}")
@@ -72,7 +88,11 @@ def process_label_generation(
 
     for input_raster_path in raster_files:
         input_raster_path = Path(input_raster_path)
-        output_label_path = output_path / input_raster_path.name
+        if  Path(output_folder).suffix:
+            #if input file path and output filepath is given we dont have to create new paths
+            output_label_path = output_folder
+        else:
+            output_label_path = output_path / input_raster_path.name
         logging.info(f"Processing image: {input_raster_path.name}")
 
         with rasterio.open(input_raster_path) as src:
@@ -128,8 +148,9 @@ def process_label_generation(
             with rasterio.open(output_label_path, "w", **profile) as dst:
                 dst.write(label_array, 1)
 
-            logging.info(f"Successfully created label file: {output_label_path.name}")
-
+            logging.info(f"Successfully created label file: {output_label_path}")
+    #in order to avoid having to load a geopackage several times we return the loade geopackage
+    return gdf 
 
 if __name__ == "__main__":
     import argparse
