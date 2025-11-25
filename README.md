@@ -90,11 +90,19 @@ To see all available options:
 python src/multi_channel_dataset_creation/create_dataset.py -h
 ```
 
-Creating label Images from a GeoPackage without further processing can be done with
+Creating label Images from a GeoPackage can be done with
 
 ```bash
 python src/multi_channel_dataset_creation/geopackage_to_label_v2.py   --geopackage example_dataset/labels/example_dataset.gpkg   --input_folder example_dataset/data/rgb/   --output_folder example_dataset/labels/large_labels/   --atribute ML_CATEGORY
 ```
+
+Cleaning labels can be done by 
+
+1. create labels based on old geopackage
+2. create labels based on new geopackage
+3. create cleaned labels based on the old and new labels
+
+python src/multi_channel_dataset_creation/data_cleaning_based_on_newer_ground_truth.py --old_labels dir_with_olod_labels --new_labels dir_with_new_labels --output dir_with_cleaned_labels
 
 ---
 

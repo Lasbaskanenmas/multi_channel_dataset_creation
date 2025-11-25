@@ -260,6 +260,13 @@ def process_label_generation_main(
             
             # --- Write Output ---
             profile = src.profile
+
+            # --- Remove conflicting metadata for single-band output ---
+            # Remove keys that are invalid for single-band label images (like YCBCR, JPEG compression)
+            for key in ['compress', 'photometric', 'interleave']:
+                if key in profile:
+                    del profile[key]
+
             # Update profile for the label file
             profile.update(dtype=rasterio.uint8, count=1, nodata=ignore_value)
 
