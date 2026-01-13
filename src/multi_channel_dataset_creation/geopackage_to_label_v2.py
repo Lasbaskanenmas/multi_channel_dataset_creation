@@ -315,3 +315,4 @@ if __name__ == "__main__":
         ignore_value=args.ignore_value,
         value_used_for_all_polygons=args.value_used_for_all_polygons,
     )
+
