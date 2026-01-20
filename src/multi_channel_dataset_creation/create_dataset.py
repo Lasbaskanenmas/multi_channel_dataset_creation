@@ -31,8 +31,6 @@ def main(args):
         print("#######################################")
         #convert the geopackage polygons to label images of same shape as the 'lod-images'
         parsed_ini_file = parse_ini.parse(args.dataset_config) # aprse the .ini file 
-
-
         geopackage_to_label_v2.process_label_generation_main( geopackage = parsed_ini_file["geopackage"],  
             input_folder=parsed_ini_file["images_that_define_areas_to_create_labels_for"], 
             output_folder = parsed_ini_file["mask_folder"], 
